@@ -91,7 +91,7 @@ body { background-color: #111827; color: #f3f4f6; font-family: sans-serif; }
 
 <script>
 const urlParams = new URLSearchParams(window.location.search);
-const albumName = urlParams.get('album'); // Ej: ?album=KOBLive
+const albumName = urlParams.get('album'); 
 
 const audio = document.getElementById("audio");
 const trackList = document.getElementById("trackList");
@@ -121,22 +121,42 @@ function formatTime(sec) {
 
 async function loadAlbum(name) {
   try {
-    // Buscar carpeta según artista
+    // Determine artist folder based on album name
     let artistFolder = "";
-    if (name === "Formula2") artistFolder = "RomeoSantos";
-    else if (name === "UnVeranoSinTi") artistFolder = "BadBunny";
-    
-    const res = await fetch(`${artistFolder}/${name}.json`);
+    let coverFile = "default.jpg"; // Default cover
+    if (name === "Formula2") {
+      artistFolder = "RomeoSantos";
+      coverFile = "Formula2.jpg"; // Adjust based on actual file name in assets/portadas
+    } else if (name === "UnVeranoSinTi") {
+      artistFolder = "BadBunny";
+      coverFile = "UnVeranoSinTi.jpg"; // Adjust based on actual file name in assets/portadas
+    }
+
+    // Fetch JSON from GitHub
+    const jsonUrl = `https://raw.githubusercontent.com/lzrdrz10/musiclive/main/${artistFolder}/${name}.json`;
+    const res = await fetch(jsonUrl);
+    if (!res.ok) throw new Error(`Failed to fetch JSON: ${res.status}`);
     const data = await res.json();
+
+    // Update album metadata
     albumTitle.textContent = data[0].album || name;
     albumArtist.textContent = data[0].artist || "Desconocido";
-    albumCover.src = data[0].cover || "assets/portadas/default.jpg";
-    tracks = data.map(track => ({...track}));
+    
+    // Set album cover from GitHub
+    albumCover.src = `https://raw.githubusercontent.com/lzrdrz10/musiclive/main/assets/portadas/${coverFile}`;
+    
+    // Map tracks and set cover URLs
+    tracks = data.map(track => ({
+      ...track,
+      cover: `https://raw.githubusercontent.com/lzrdrz10/musiclive/main/assets/portadas/${coverFile}`
+    }));
+    
     trackCount.textContent = tracks.length + " canciones";
     loadTrack(tracks[0]);
     renderTracks(tracks);
   } catch(e) {
     console.error("Error cargando el álbum:", e);
+    albumTitle.textContent = "Error al cargar el álbum";
   }
 }
 
