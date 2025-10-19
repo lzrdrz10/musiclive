@@ -39,6 +39,126 @@
   details[open] > summary::before { transform: rotate(90deg); }
   details > ul { margin-top: 8px; margin-left: 20px; }
   details > ul > li { padding: 4px 0; }
+  /* Updated table styles */
+  table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    table-layout: auto; /* Ensure table fits container */
+  }
+  .table-container {
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+    width: 100%;
+  }
+  thead th {
+    padding: 12px 16px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: rgba(31, 41, 55, 0.8);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  tbody tr {
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  tbody tr:hover {
+    background-color: rgba(55, 65, 81, 0.3);
+    transform: translateY(-1px);
+  }
+  tbody tr.active-track {
+    background-color: rgba(59, 130, 246, 0.15);
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.2);
+  }
+  tbody td {
+    padding: 10px 16px;
+    vertical-align: middle;
+  }
+  .track-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+  .track-cover {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+  .track-details {
+    min-width: 0;
+    flex: 1;
+  }
+  .track-title {
+    font-size: 0.95rem;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    position: relative;
+    max-width: 100%; /* Ensure title fits within cell */
+  }
+  .track-title::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 20px;
+    background: linear-gradient(to right, transparent, rgba(11, 18, 32, 0.8));
+  }
+  .track-artist {
+    font-size: 0.85rem;
+    opacity: 0.7;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%; /* Ensure artist fits within cell */
+  }
+  tbody tr:hover .track-info::before {
+    content: '▶';
+    font-size: 0.8rem;
+    color: #3b82f6;
+    margin-right: 8px;
+    opacity: 0.8;
+  }
+  @media (max-width: 640px) {
+    thead th, tbody td {
+      padding: 8px 12px;
+    }
+    .track-cover {
+      width: 32px;
+      height: 32px;
+    }
+    .track-title {
+      font-size: 0.9rem;
+    }
+    .track-artist {
+      font-size: 0.8rem;
+    }
+    th:nth-child(3), td:nth-child(3) {
+      display: none; /* Hide duration on mobile */
+    }
+  }
+  
+ .pt-20 {
+    padding-top: 1rem !important;
+}.pb-32 {
+    padding-bottom: 7rem !important;
+}
+.p-4 {
+    padding: 0rem !important;
+}
+.rounded-lg {
+    border-radius: 0rem !important;
+}
+.mt-6 {
+    margin-top: 0.5rem !important;
+}
+
+
 </style>
 </head>
 <body class="min-h-screen">
@@ -49,7 +169,6 @@
     <div class="text-2xl font-black">DarkPlayer</div>
     <button id="closeSidebarBtn" class="md:hidden p-2 rounded hover:bg-white/5">✕</button>
   </div>
-
   <nav class="flex-1">
     <ul class="space-y-3 text-sm" id="sidebarNav">
       <li class="flex items-center gap-3 hover:text-white cursor-pointer" data-view="welcome">🏠 Inicio</li>
@@ -59,7 +178,6 @@
       </li>
     </ul>
   </nav>
-
   <div class="text-xs opacity-70">© Tu estudio · Demo</div>
 </aside>
 
@@ -72,46 +190,25 @@
     <button id="hamburger" class="p-2 rounded hover:bg-white/5">☰</button>
     <div class="font-semibold text-lg">DarkPlayer</div>
   </div>
-  <div class="text-sm opacity-70">Demo</div>
+  <div class="flex-1 ml-3">
+    <input id="searchTrackMobile" type="text" placeholder="Buscar canción o artista..." class="w-full px-3 py-2 rounded bg-gray-800/60 text-sm outline-none focus:ring-2 focus:ring-white/20" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="none" inputmode="text" />
+  </div>
 </header>
 
 <!-- Main area -->
-<main class="md:ml-72 p-6 pb-28">
+<main class="md:ml-72 p-6 pb-32 md:pb-36 pt-20 md:pt-6">
   <div id="welcomeSection" class="hidden">
     <div class="flex items-center justify-between">
       <h1 class="text-3xl font-extrabold">Bienvenido a DarkPlayer</h1>
-      <div class="hidden md:flex items-center gap-3">
-        <input id="searchTrack" type="text" placeholder="Buscar canción o artista..." class="px-3 py-2 rounded bg-gray-800/60 text-sm outline-none focus:ring-2 focus:ring-white/20" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="none" inputmode="text" />
-      </div>
     </div>
-
-    <div class="md:hidden mt-4">
-      <input id="searchTrackMobile" type="text" placeholder="Buscar canción o artista..." class="w-full px-3 py-2 rounded bg-gray-800/60 text-sm outline-none focus:ring-2 focus:ring-white/20" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="none" inputmode="text" />
-    </div>
-
-    <section class="bg-gray-800/60 p-4 rounded-lg mt-6 flex flex-col gap-4">
-      <div class="flex items-center gap-4 mb-4">
-        <div class="flex-1">
-          <div class="font-medium text-lg">Todas las canciones</div>
-          <div id="trackCount" class="text-xs opacity-70">0 canciones</div>
-        </div>
-        <div class="hidden md:flex items-center gap-2">
-  <button id="playAllBtn" class="px-3 py-2 rounded bg-white/6 flex items-center gap-2">
-    <i class="fas fa-play"></i>
-    Reproducir todo
-  </button>
-</div>
-
-      </div>
-
-      <div class="overflow-y-auto" style="max-height: 58vh;">
+    <section class="bg-gray-800/60 p-4 rounded-lg mt-6">
+      <div class="table-container" style="max-height: 58vh;">
         <table class="w-full table-auto text-left">
           <thead class="text-xs text-gray-400 sticky top-0 bg-gray-800/60">
             <tr>
-              <th class="pl-3 w-12">#</th>
+              <th class="pl-4 w-12">#</th>
               <th>Título</th>
-              <th class="text-right pr-3 w-20">Duración</th>
-              <th class="w-14"></th>
+              <th class="text-right pr-4 md:w-20">Duración</th>
             </tr>
           </thead>
           <tbody id="trackList"></tbody>
@@ -119,7 +216,6 @@
       </div>
     </section>
   </div>
-
   <div id="albumSection" class="hidden">
     <div class="flex items-center justify-between">
       <h1 id="albumTitle" class="text-3xl font-extrabold">Cargando...</h1>
@@ -127,35 +223,21 @@
         <input id="searchTrackAlbum" type="text" placeholder="Buscar canción o artista..." class="px-3 py-2 rounded bg-gray-800/60 text-sm outline-none focus:ring-2 focus:ring-white/20" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="none" inputmode="text" />
       </div>
     </div>
-
-    <div class="md:hidden mt-4">
-      <input id="searchTrackMobileAlbum" type="text" placeholder="Buscar canción o artista..." class="w-full px-3 py-2 rounded bg-gray-800/60 text-sm outline-none focus:ring-2 focus:ring-white/20" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="none" inputmode="text" />
-    </div>
-
-    <section class="bg-gray-800/60 p-4 rounded-lg mt-6 flex flex-col gap-4">
+    <section class="bg-gray-800/60 p-4 rounded-lg mt-6">
       <div class="flex items-center gap-4 mb-4">
         <img id="albumCover" src="https://via.placeholder.com/96" class="w-24 h-24 rounded" />
         <div class="flex-1">
           <div id="albumArtist" class="font-medium text-lg">Cargando...</div>
           <div id="albumTrackCount" class="text-xs opacity-70">0 canciones</div>
         </div>
-       <div class="hidden md:flex items-center gap-2">
-  <button id="albumPlayAllBtn" class="px-3 py-2 rounded bg-white/6 flex items-center gap-2">
-    <i class="fas fa-play"></i>
-    Reproducir todo
-  </button>
-</div>
-
       </div>
-
-      <div class="overflow-y-auto" style="max-height: 58vh;">
+      <div class="table-container" style="max-height: 58vh;">
         <table class="w-full table-auto text-left">
           <thead class="text-xs text-gray-400 sticky top-0 bg-gray-800/60">
             <tr>
-              <th class="pl-3 w-12">#</th>
+              <th class="pl-4 w-12">#</th>
               <th>Título</th>
-              <th class="text-right pr-3 w-20">Duración</th>
-              <th class="w-14"></th>
+              <th class="text-right pr-4 md:w-20">Duración</th>
             </tr>
           </thead>
           <tbody id="albumTrackList"></tbody>
@@ -194,6 +276,7 @@
       <button id="nextBtn" class="p-2 sm:p-2.5 rounded hover:bg-white/5">
         <i class="fas fa-forward"></i>
       </button>
+      <button id="footerFavBtn" class="favBtn text-sm p-2 sm:p-2.5 rounded hover:bg-white/5">☆</button>
     </div>
   </div>
   <div class="mt-2 w-full px-3">
