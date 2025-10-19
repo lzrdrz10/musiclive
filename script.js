@@ -116,7 +116,7 @@ async function loadAllAlbums() {
     {name: "Formula2", artistFolder: "RomeoSantos", coverFile: "Formula2.JPEG", artist: "Romeo Santos"},
     {name: "UnVeranoSinTi", artistFolder: "BadBunny", coverFile: "UnVeranoSinTi.jpeg", artist: "Bad Bunny"},
     {name: "TuUltimaCancion", artistFolder: "Temerarios", coverFile: "TuUltimaCancion.jpeg", artist: "Los Temerarios"},
-    {name: "album2", artistFolder: "Temerarios", coverFile: "album2.jpeg", artist: "Los Temerarios"}
+    {name: "Formula3", artistFolder: "RomeoSantos", coverFile: "Formula1.jpg", artist: "Romeo Santos"}
   ];
 
   allTracks = [];
@@ -185,10 +185,10 @@ function renderSidebar() {
           <summary class="flex items-center gap-3 text-sm">' + escapeHtml(artist) + '</summary>\
           <ul class="text-sm">';
       artists[artist].forEach(function(alb) {
-        var icon = alb.name === "Formula2" ? "🎵" :
-                   alb.name === "UnVeranoSinTi" ? "🌴" :
-                   alb.name === "TuUltimaCancion" ? "❤️" :
-                   alb.name === "album2" ? "🎸" : "💿";
+        var icon = alb.name === "Formula2" ? "💿" :
+                   alb.name === "UnVeranoSinTi" ? "💿" :
+                   alb.name === "TuUltimaCancion" ? "💿" :
+                   alb.name === "Formula3" ? "💿" : "💿";
         navHtml += '<li><a href="?album=' + alb.name + '" class="hover:text-white">' + icon + ' ' + escapeHtml(alb.name) + '</a></li>';
       });
       navHtml += '</ul></details></li>';
@@ -630,10 +630,10 @@ if (hamburger) {
             <summary class="flex items-center gap-3 text-sm">' + escapeHtml(artist) + '</summary>\
             <ul class="text-sm">';
         artists[artist].forEach(function(alb) {
-          var icon = alb.name === "Formula2" ? "🎵" :
-                     alb.name === "UnVeranoSinTi" ? "🌴" :
-                     alb.name === "TuUltimaCancion" ? "❤️" :
-                     alb.name === "album2" ? "🎸" : "💿";
+          var icon = alb.name === "Formula2" ? "💿" :
+                   alb.name === "UnVeranoSinTi" ? "💿" :
+                   alb.name === "TuUltimaCancion" ? "💿" :
+                   alb.name === "Formula3" ? "💿" : "💿";
           navHtml += '<li><a href="?album=' + alb.name + '" class="hover:text-white">' + icon + ' ' + escapeHtml(alb.name) + '</a></li>';
         });
         navHtml += '</ul></details></li>';
