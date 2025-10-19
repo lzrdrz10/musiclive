@@ -3,11 +3,15 @@ var urlParams = new URLSearchParams(window.location.search);
 var albumName = urlParams.get('album');
 
 var audio = document.getElementById("audio");
+var welcomeSection = document.getElementById("welcomeSection");
+var albumSection = document.getElementById("albumSection");
 var trackListEl = document.getElementById("trackList");
+var albumTrackListEl = document.getElementById("albumTrackList");
 var albumTitle = document.getElementById("albumTitle");
 var albumArtist = document.getElementById("albumArtist");
 var albumCover = document.getElementById("albumCover");
 var trackCount = document.getElementById("trackCount");
+var albumTrackCount = document.getElementById("albumTrackCount");
 var playBtn = document.getElementById("playPauseBtn");
 var currentCover = document.getElementById("currentCover");
 var currentTitle = document.getElementById("currentTitle");
@@ -17,23 +21,30 @@ var currentTimeLabel = document.getElementById("currentTime");
 var totalTimeLabel = document.getElementById("totalTime");
 var searchInput = document.getElementById("searchTrack");
 var searchInputMobile = document.getElementById("searchTrackMobile");
+var searchInputAlbum = document.getElementById("searchTrackAlbum");
+var searchInputMobileAlbum = document.getElementById("searchTrackMobileAlbum");
 var favCountEl = document.getElementById("favCount");
 var favNav = document.getElementById("favNav");
 var playAllBtn = document.getElementById("playAllBtn");
+var albumPlayAllBtn = document.getElementById("albumPlayAllBtn");
 var hamburger = document.getElementById("hamburger");
 var mobileSidebarContainer = document.getElementById("mobileSidebarContainer");
 var sidebar = document.getElementById("sidebar");
 var closeSidebarBtn = document.getElementById("closeSidebarBtn");
+var shuffleBtn = document.getElementById("shuffleBtn");
+var sidebarNav = document.getElementById("sidebarNav");
 
 var tracks = [];
 var displayedTracks = [];
 var current = null;
 var isPlaying = false;
+var isShuffling = false;
 var favorites = []; // array de objetos track
-var currentView = 'album'; // 'album', 'favoritos', 'search'
+var currentView = 'welcome'; // 'welcome', 'album', 'favoritos', 'search'
 var previousView = null;
 var allTracks = [];
 var albumsTracks = {};
+var artists = {}; // { artistName: [{name, artistFolder, coverFile, artist}] }
 audio.volume = 0.8;
 
 /* ===== utilidades ===== */
@@ -66,26 +77,67 @@ function updateFavUI() {
   if (mFavCount) mFavCount.textContent = favorites.length;
 }
 
-/* ===== Cargar todos los álbumes ===== */
+/* ===== Shuffle utilities ===== */
+function loadShuffleState() {
+  try {
+    isShuffling = JSON.parse(localStorage.getItem("dp_shuffle") || "false");
+    updateShuffleUI();
+  } catch (e) {
+    console.error("Error loading shuffle state:", e);
+    isShuffling = false;
+  }
+}
+
+function saveShuffleState() {
+  localStorage.setItem("dp_shuffle", JSON.stringify(isShuffling));
+  updateShuffleUI();
+}
+
+function updateShuffleUI() {
+  if (shuffleBtn) {
+    if (isShuffling) {
+      shuffleBtn.classList.add("active");
+    } else {
+      shuffleBtn.classList.remove("active");
+    }
+  }
+}
+
+function getRandomTrack() {
+  if (!displayedTracks.length) return null;
+  var idx = Math.floor(Math.random() * displayedTracks.length);
+  return displayedTracks[idx];
+}
+
+/* ===== Cargar todos los álbumes y agrupar por artista ===== */
 async function loadAllAlbums() {
   var albums = [
     {name: "Formula2", artistFolder: "RomeoSantos", coverFile: "Formula2.JPEG", artist: "Romeo Santos"},
-    {name: "UnVeranoSinTi", artistFolder: "BadBunny", coverFile: "UnVeranoSinTi.jpeg", artist: "Bad Bunny"}
+    {name: "UnVeranoSinTi", artistFolder: "BadBunny", coverFile: "UnVeranoSinTi.jpeg", artist: "Bad Bunny"},
+    {name: "TuUltimaCancion", artistFolder: "Temerarios", coverFile: "TuUltimaCancion.jpeg", artist: "Los Temerarios"}
   ];
 
   allTracks = [];
   albumsTracks = {};
+  artists = {};
 
   for (let alb of albums) {
     try {
-      var jsonUrl = "https://raw.githubusercontent.com/lzrdrz10/musiclive/main/" + alb.artistFolder + "/" + alb.name + ".json";
+      var jsonUrl = `https://raw.githubusercontent.com/lzrdrz10/musiclive/main/${alb.artistFolder}/${alb.name}.json`;
+      console.log("Intentando cargar JSON:", jsonUrl);
       var res = await fetch(jsonUrl);
-      if (!res.ok) throw new Error("Error al cargar JSON: " + res.status);
+      if (!res.ok) throw new Error(`Error al cargar JSON para ${alb.name}: ${res.status}`);
       var data = await res.json();
 
-      if (!Array.isArray(data) || data.length === 0) throw new Error("JSON vacío o inválido");
+      if (!Array.isArray(data) || data.length === 0) throw new Error(`JSON vacío o inválido para ${alb.name}`);
 
-      var coverUrl = "https://raw.githubusercontent.com/lzrdrz10/musiclive/main/portadas/" + alb.coverFile;
+      var coverUrl = `https://raw.githubusercontent.com/lzrdrz10/musiclive/main/portadas/${alb.coverFile}`;
+      // Verificar si la imagen existe
+      var coverRes = await fetch(coverUrl);
+      if (!coverRes.ok) {
+        console.warn(`Portada no encontrada para ${alb.name}: ${coverUrl}, usando placeholder`);
+        coverUrl = "https://via.placeholder.com/96";
+      }
 
       var tracks = data.map(function(t, idx) {
         return {
@@ -102,13 +154,87 @@ async function loadAllAlbums() {
       albumsTracks[alb.name] = tracks;
       allTracks.push(...tracks);
 
+      // Agrupar por artista
+      if (!artists[alb.artist]) {
+        artists[alb.artist] = [];
+      }
+      artists[alb.artist].push(alb);
+
     } catch (e) {
-      console.error("Error cargando álbum " + alb.name + ": ", e);
+      console.error(`Error cargando álbum ${alb.name}:`, e);
     }
   }
+
+  // Renderizar sidebar con acordeones
+  renderSidebar();
 }
 
-/* ===== Cargar álbum (desde pre-cargados) ===== */
+/* ===== Renderizar sidebar con acordeones ===== */
+function renderSidebar() {
+  if (!sidebarNav) return;
+  var navHtml = '\
+    <li class="flex items-center gap-3 hover:text-white cursor-pointer" data-view="welcome">🏠 Inicio</li>';
+  
+  // Ordenar artistas alfabéticamente
+  var artistNames = Object.keys(artists).sort();
+  for (var artist of artistNames) {
+    if (artists.hasOwnProperty(artist)) {
+      navHtml += '\
+        <li><details class="hover:text-white">\
+          <summary class="flex items-center gap-3 text-sm">' + escapeHtml(artist) + '</summary>\
+          <ul class="text-sm">';
+      artists[artist].forEach(function(alb) {
+        var icon = alb.name === "Formula2" ? "🎵" :
+                   alb.name === "UnVeranoSinTi" ? "🌴" :
+                   alb.name === "TuUltimaCancion" ? "❤️" : "💿";
+        navHtml += '<li><a href="?album=' + alb.name + '" class="hover:text-white">' + icon + ' ' + escapeHtml(alb.name) + '</a></li>';
+      });
+      navHtml += '</ul></details></li>';
+    }
+  }
+
+  navHtml += '\
+    <li class="pt-4 border-t border-gray-800 text-xs opacity-80">Listas</li>\
+    <li class="flex items-center gap-3 hover:text-white cursor-pointer" id="favNav">\
+      ⭐ Favoritos <span id="favCount" class="ml-2 text-xs opacity-70">0</span>\
+    </li>';
+
+  sidebarNav.innerHTML = navHtml;
+
+  // Re-asignar evento para favoritos
+  var newFavNav = document.getElementById("favNav");
+  if (newFavNav) {
+    newFavNav.onclick = function() {
+      showFavorites();
+    };
+  }
+
+  // Re-asignar eventos para Inicio
+  var inicioNavs = document.querySelectorAll('[data-view="welcome"]');
+  inicioNavs.forEach(function(n){ 
+    n.onclick = function(){ 
+      showWelcome();
+    };
+  });
+}
+
+/* ===== Mostrar sección de bienvenida ===== */
+function showWelcome() {
+  currentView = 'welcome';
+  if (welcomeSection) welcomeSection.classList.remove("hidden");
+  if (albumSection) albumSection.classList.add("hidden");
+  if (trackCount) trackCount.textContent = allTracks.length + " canciones";
+  displayedTracks = allTracks.slice();
+  renderTracks(displayedTracks, trackListEl);
+
+  // Limpiar búsqueda al cambiar de vista
+  if (searchInput) searchInput.value = "";
+  if (searchInputMobile) searchInputMobile.value = "";
+  if (searchInputAlbum) searchInputAlbum.value = "";
+  if (searchInputMobileAlbum) searchInputMobileAlbum.value = "";
+}
+
+/* ===== Cargar álbum ===== */
 function loadAlbum(name) {
   if (!name || !albumsTracks[name]) {
     if (albumTitle) albumTitle.textContent = "Álbum no encontrado";
@@ -116,17 +242,19 @@ function loadAlbum(name) {
     if (albumCover) albumCover.src = "https://via.placeholder.com/96";
     tracks = [];
     displayedTracks = [];
-    renderTracks([]);
+    renderTracks([], albumTrackListEl);
     return;
   }
 
+  if (welcomeSection) welcomeSection.classList.add("hidden");
+  if (albumSection) albumSection.classList.remove("hidden");
   tracks = albumsTracks[name];
   if (albumTitle) albumTitle.textContent = tracks[0].album || name;
   if (albumArtist) albumArtist.textContent = tracks[0].artist || "Desconocido";
   if (albumCover) albumCover.src = tracks[0].cover || "https://via.placeholder.com/96";
-  if (trackCount) trackCount.textContent = tracks.length + " canciones";
+  if (albumTrackCount) albumTrackCount.textContent = tracks.length + " canciones";
   displayedTracks = tracks.slice();
-  renderTracks(displayedTracks);
+  renderTracks(displayedTracks, albumTrackListEl);
 
   var lastTrack = JSON.parse(localStorage.getItem("dp_lastTrack") || "null");
   var saved = lastTrack ? tracks.find(function(x){ return x.id === lastTrack.id; }) : null;
@@ -138,12 +266,14 @@ function loadAlbum(name) {
   // Limpiar búsqueda al cambiar de vista
   if (searchInput) searchInput.value = "";
   if (searchInputMobile) searchInputMobile.value = "";
+  if (searchInputAlbum) searchInputAlbum.value = "";
+  if (searchInputMobileAlbum) searchInputMobileAlbum.value = "";
 }
 
 /* ===== Renderizar lista de pistas ===== */
-function renderTracks(list) {
-  if (!trackListEl) return;
-  trackListEl.innerHTML = "";
+function renderTracks(list, targetEl) {
+  if (!targetEl) return;
+  targetEl.innerHTML = "";
   list.forEach(function(t) {
     var tr = document.createElement("tr");
     var activeCls = (current && current.id === t.id && current.album === t.album) ? "bg-gray-700/60" : "";
@@ -156,7 +286,7 @@ function renderTracks(list) {
       <td class="pl-3 py-3 align-middle">' + t.id + '</td>\
       <td>\
         <div class="flex items-center gap-3">\
-          <img src="' + t.cover + '" class="w-10 h-10 rounded" />\
+          <img src="' + t.cover + '" class="w-10 h-10 rounded" onerror="this.src=\'https://via.placeholder.com/96\'" />\
           <div>\
             <div class="font-medium">' + escapeHtml(t.title) + '</div>\
             <div class="text-xs opacity-70">' + escapeHtml(t.artist) + '</div>\
@@ -186,17 +316,17 @@ function renderTracks(list) {
     tr.addEventListener("click", function(e){
       if (e.target.classList.contains("favBtn")) {
         toggleFavorite(t);
-        renderTracks(displayedTracks);
+        renderTracks(displayedTracks, targetEl);
       }
     });
 
-    trackListEl.appendChild(tr);
+    targetEl.appendChild(tr);
   });
 }
 
 /* ===== Favoritos ===== */
 function toggleFavorite(track) {
-  var idx = favorites.findIndex(function(f){ return f.id === track.id && f.album === track.album; });
+  var idx = favorites.findIndex(function(f){ return f.id === track.id && f.album === t.album; });
   if (idx === -1) {
     favorites.push({...track});
   } else {
@@ -204,21 +334,24 @@ function toggleFavorite(track) {
   }
   saveFavorites();
   if (currentView === 'favoritos') showFavorites();
+  else if (currentView === 'welcome') showWelcome();
+  else if (currentView === 'album') loadAlbum(albumName);
 }
 
 /* ===== Mostrar favoritos ===== */
 function showFavorites() {
   currentView = 'favoritos';
-  if (albumTitle) albumTitle.textContent = "Favoritos";
-  if (albumArtist) albumArtist.textContent = "Tus canciones guardadas";
-  if (albumCover) albumCover.src = "https://via.placeholder.com/96?text=❤";
+  if (welcomeSection) welcomeSection.classList.remove("hidden");
+  if (albumSection) albumSection.classList.add("hidden");
+  if (trackCount) trackCount.textContent = favorites.length + " canciones";
   displayedTracks = favorites.slice();
-  if (trackCount) trackCount.textContent = displayedTracks.length + " canciones";
-  renderTracks(displayedTracks);
+  renderTracks(displayedTracks, trackListEl);
 
   // Limpiar búsqueda al cambiar de vista
   if (searchInput) searchInput.value = "";
   if (searchInputMobile) searchInputMobile.value = "";
+  if (searchInputAlbum) searchInputAlbum.value = "";
+  if (searchInputMobileAlbum) searchInputMobileAlbum.value = "";
 }
 
 /* ===== Cargar una canción en el reproductor ===== */
@@ -237,7 +370,11 @@ function loadTrack(track) {
   if (currentArtist) currentArtist.textContent = track.artist || "Desconocido";
   if (totalTimeLabel) totalTimeLabel.textContent = formatTime(track.duration || 0);
   localStorage.setItem("dp_lastTrack", JSON.stringify({ id: track.id }));
-  renderTracks(displayedTracks);
+  if (currentView === 'welcome' || currentView === 'favoritos' || currentView === 'search') {
+    renderTracks(displayedTracks, trackListEl);
+  } else if (currentView === 'album') {
+    renderTracks(displayedTracks, albumTrackListEl);
+  }
 }
 
 /* ===== Reproducir una pista ===== */
@@ -254,7 +391,7 @@ function playTrack(track) {
   });
 }
 
-/* ===== Botones Play/Pause/Next/Prev ===== */
+/* ===== Botones Play/Pause/Next/Prev/Shuffle ===== */
 if (playBtn) {
   playBtn.onclick = function() {
     if (isPlaying) {
@@ -277,18 +414,41 @@ if (playBtn) {
 if (document.getElementById("nextBtn")) {
   document.getElementById("nextBtn").onclick = function() {
     if (!displayedTracks.length) return;
-    var idx = displayedTracks.findIndex(function(t){ return t.id === (current && current.id) && t.album === (current && current.album); });
-    var next = displayedTracks[(idx + 1) % displayedTracks.length];
-    playTrack(next);
+    if (isShuffling) {
+      var next = getRandomTrack();
+      while (next && current && next.id === current.id && next.album === current.album && displayedTracks.length > 1) {
+        next = getRandomTrack(); // Avoid playing the same track
+      }
+      playTrack(next);
+    } else {
+      var idx = displayedTracks.findIndex(function(t){ return t.id === (current && current.id) && t.album === (current && current.album); });
+      var next = displayedTracks[(idx + 1) % displayedTracks.length];
+      playTrack(next);
+    }
   };
 }
 
 if (document.getElementById("prevBtn")) {
   document.getElementById("prevBtn").onclick = function() {
     if (!displayedTracks.length) return;
-    var idx = displayedTracks.findIndex(function(t){ return t.id === (current && current.id) && t.album === (current && current.album); });
-    var prev = displayedTracks[(idx - 1 + displayedTracks.length) % displayedTracks.length];
-    playTrack(prev);
+    if (isShuffling) {
+      var prev = getRandomTrack();
+      while (prev && current && prev.id === current.id && prev.album === current.album && displayedTracks.length > 1) {
+        prev = getRandomTrack(); // Avoid playing the same track
+      }
+      playTrack(prev);
+    } else {
+      var idx = displayedTracks.findIndex(function(t){ return t.id === (current && current.id) && t.album === (current && current.album); });
+      var prev = displayedTracks[(idx - 1 + displayedTracks.length) % displayedTracks.length];
+      playTrack(prev);
+    }
+  };
+}
+
+if (shuffleBtn) {
+  shuffleBtn.onclick = function() {
+    isShuffling = !isShuffling;
+    saveShuffleState();
   };
 }
 
@@ -300,16 +460,6 @@ if (audio) {
     if (currentTimeLabel) currentTimeLabel.textContent = formatTime(audio.currentTime);
     if (totalTimeLabel) totalTimeLabel.textContent = isNaN(audio.duration) ? "0:00" : formatTime(audio.duration);
   };
-}
-
-if (progressBar) {
-  progressBar.addEventListener("click", function(e){
-    var rect = progressBar.getBoundingClientRect();
-    var x = e.clientX - rect.left;
-    var pct = x / rect.width;
-    var newTime = pct * audio.duration;
-    audio.currentTime = isNaN(newTime) ? 0 : newTime;
-  });
 }
 
 /* ===== Cuando termina la canción ===== */
@@ -325,18 +475,10 @@ function applySearch(term) {
   if (term === "") {
     previousView = null;
     if (currentView === 'search') {
-      currentView = 'album';
       if (albumName) {
         loadAlbum(albumName);
       } else {
-        var lastAlbum = localStorage.getItem("dp_lastAlbum");
-        if (lastAlbum && albumsTracks[lastAlbum]) {
-          loadAlbum(lastAlbum);
-        } else {
-          if (albumTitle) albumTitle.textContent = "Selecciona un álbum";
-          displayedTracks = [];
-          renderTracks([]);
-        }
+        showWelcome();
       }
     }
     return;
@@ -349,21 +491,41 @@ function applySearch(term) {
   });
 
   currentView = 'search';
-  if (albumTitle) albumTitle.textContent = 'Resultados para "' + escapeHtml(term) + '"';
-  if (albumArtist) albumArtist.textContent = "En todos los álbumes";
-  if (albumCover) albumCover.src = "https://via.placeholder.com/96?text=🔍";
+  if (welcomeSection) welcomeSection.classList.remove("hidden");
+  if (albumSection) albumSection.classList.add("hidden");
   if (trackCount) trackCount.textContent = displayedTracks.length + " resultados";
-  renderTracks(displayedTracks);
+  renderTracks(displayedTracks, trackListEl);
+  if (searchInput) searchInput.value = term;
+  if (searchInputMobile) searchInputMobile.value = term;
+  if (searchInputAlbum) searchInputAlbum.value = term;
+  if (searchInputMobileAlbum) searchInputMobileAlbum.value = term;
 }
 
 if (searchInput) searchInput.oninput = function(e){ applySearch(e.target.value); };
 if (searchInputMobile) searchInputMobile.oninput = function(e){ applySearch(e.target.value); };
+if (searchInputAlbum) searchInputAlbum.oninput = function(e){ applySearch(e.target.value); };
+if (searchInputMobileAlbum) searchInputMobileAlbum.oninput = function(e){ applySearch(e.target.value); };
 
 /* ===== Play All ===== */
 if (playAllBtn) {
   playAllBtn.onclick = function(){
     if (!displayedTracks.length) return;
-    playTrack(displayedTracks[0]);
+    if (isShuffling) {
+      playTrack(getRandomTrack());
+    } else {
+      playTrack(displayedTracks[0]);
+    }
+  };
+}
+
+if (albumPlayAllBtn) {
+  albumPlayAllBtn.onclick = function(){
+    if (!displayedTracks.length) return;
+    if (isShuffling) {
+      playTrack(getRandomTrack());
+    } else {
+      playTrack(displayedTracks[0]);
+    }
   };
 }
 
@@ -375,18 +537,10 @@ if (favNav) {
 }
 
 /* ===== Inicio view ===== */
-var inicioNavs = document.querySelectorAll('[data-view="inicio"]');
+var inicioNavs = document.querySelectorAll('[data-view="welcome"]');
 inicioNavs.forEach(function(n){ 
   n.onclick = function(){ 
-    currentView = 'album';
-    if (searchInput) searchInput.value = "";
-    if (searchInputMobile) searchInputMobile.value = "";
-    if (albumName) loadAlbum(albumName);
-    else {
-      var lastAlbum = localStorage.getItem("dp_lastAlbum");
-      if (lastAlbum && albumsTracks[lastAlbum]) loadAlbum(lastAlbum);
-      else if (albumTitle) albumTitle.textContent = "Selecciona un álbum del menú";
-    }
+    showWelcome();
   };
 });
 
@@ -404,7 +558,7 @@ if (audio) {
 /* ===== Mobile sidebar ===== */
 if (hamburger) {
   hamburger.onclick = function() {
-    mobileSidebarContainer.innerHTML = '\
+    var navHtml = '\
       <div id="mobileOverlay" class="fixed inset-0 flex z-50">\
         <div class="w-72 bg-gradient-to-b from-gray-900 to-black p-5 h-full overflow-auto">\
           <div class="flex items-center justify-between mb-4">\
@@ -413,9 +567,27 @@ if (hamburger) {
           </div>\
           <nav>\
             <ul class="space-y-3 text-sm">\
-              <li class="flex items-center gap-3 hover:text-white cursor-pointer" id="mInicio">🏠 Inicio</li>\
-              <li><a href="?album=Formula2" class="hover:text-white">🎵 Romeo Santos - Fórmula Vol.2</a></li>\
-              <li><a href="?album=UnVeranoSinTi" class="hover:text-white">🌴 Bad Bunny - Un Verano Sin Ti</a></li>\
+              <li class="flex items-center gap-3 hover:text-white cursor-pointer" id="mInicio">🏠 Inicio</li>';
+
+    // Ordenar artistas alfabéticamente
+    var artistNames = Object.keys(artists).sort();
+    for (var artist of artistNames) {
+      if (artists.hasOwnProperty(artist)) {
+        navHtml += '\
+          <li><details class="hover:text-white">\
+            <summary class="flex items-center gap-3 text-sm">' + escapeHtml(artist) + '</summary>\
+            <ul class="text-sm">';
+        artists[artist].forEach(function(alb) {
+          var icon = alb.name === "Formula2" ? "🎵" :
+                     alb.name === "UnVeranoSinTi" ? "🌴" :
+                     alb.name === "TuUltimaCancion" ? "❤️" : "💿";
+          navHtml += '<li><a href="?album=' + alb.name + '" class="hover:text-white">' + icon + ' ' + escapeHtml(alb.name) + '</a></li>';
+        });
+        navHtml += '</ul></details></li>';
+      }
+    }
+
+    navHtml += '\
               <li class="pt-4 border-t border-gray-800 text-xs opacity-80">Listas</li>\
               <li class="flex items-center gap-3 hover:text-white cursor-pointer" id="mFav">⭐ Favoritos <span id="mFavCount" class="ml-2 text-xs opacity-70">' + favorites.length + '</span></li>\
             </ul>\
@@ -424,13 +596,14 @@ if (hamburger) {
         <div id="mobileOverlayBg" class="flex-1 overlay"></div>\
       </div>';
 
+    mobileSidebarContainer.innerHTML = navHtml;
+
     document.getElementById("mobileClose").onclick = function(){ mobileSidebarContainer.innerHTML = ""; };
     document.getElementById("mobileOverlayBg").onclick = function(){ mobileSidebarContainer.innerHTML = ""; };
 
     document.getElementById("mInicio").onclick = function(){
       mobileSidebarContainer.innerHTML = "";
-      currentView = 'album';
-      if (albumName) loadAlbum(albumName);
+      showWelcome();
     };
     document.getElementById("mFav").onclick = function(){
       mobileSidebarContainer.innerHTML = "";
@@ -467,14 +640,13 @@ function escapeHtml(unsafe) {
 /* ===== Inicialización ===== */
 (async function init(){
   loadFavorites();
+  loadShuffleState();
   await loadAllAlbums();
 
   var lastAlbum = localStorage.getItem("dp_lastAlbum");
   if (albumName) {
     loadAlbum(albumName);
-  } else if (lastAlbum && albumsTracks[lastAlbum]) {
-    loadAlbum(lastAlbum);
   } else {
-    if (albumTitle) albumTitle.textContent = "Selecciona un álbum del menú";
+    showWelcome();
   }
 })();
