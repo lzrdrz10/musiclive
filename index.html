@@ -10,9 +10,17 @@
   body { background-color: #0b1220; color: #e6eef8; font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
   ::-webkit-scrollbar { width: 6px; height:6px; }
   ::-webkit-scrollbar-thumb { background-color: #374151; border-radius: 3px; }
-  #progressFill { transition: width 0.15s linear; }
+  #progressFill { 
+    transition: width 0.15s linear; 
+    background-color: #93c5fd;
+  }
+  #progressBar:hover #progressFill {
+    background-color: #60a5fa;
+  }
+  #progressBar:active #progressFill {
+    background-color: #2563eb;
+  }
   #currentCover { transition: opacity 0.25s ease-in-out; }
-  /* Overlay for mobile sidebar */
   .overlay { background: rgba(2,6,23,0.6); backdrop-filter: blur(4px); }
   @keyframes marquee {
     0%   { transform: translateX(100%); }
@@ -24,8 +32,7 @@
     will-change: transform;
     animation: marquee 10s linear infinite;
   }
-  #shuffleBtn.active { color: #3b82f6; } /* Blue color when shuffle is active */
-  /* Accordion styling */
+  #shuffleBtn.active { color: #3b82f6; }
   details > summary { cursor: pointer; list-style: none; }
   details > summary::-webkit-details-marker { display: none; }
   details > summary::before { content: '▶'; display: inline-block; margin-right: 8px; transition: transform 0.2s; }
@@ -46,7 +53,6 @@
   <nav class="flex-1">
     <ul class="space-y-3 text-sm" id="sidebarNav">
       <li class="flex items-center gap-3 hover:text-white cursor-pointer" data-view="welcome">🏠 Inicio</li>
-      <!-- Artists and albums will be populated dynamically -->
       <li class="pt-4 border-t border-gray-800 text-xs opacity-80">Listas</li>
       <li class="flex items-center gap-3 hover:text-white cursor-pointer" id="favNav">
         ⭐ Favoritos <span id="favCount" class="ml-2 text-xs opacity-70">0</span>
@@ -75,13 +81,12 @@
     <div class="flex items-center justify-between">
       <h1 class="text-3xl font-extrabold">Bienvenido a DarkPlayer</h1>
       <div class="hidden md:flex items-center gap-3">
-        <input id="searchTrack" type="text" placeholder="Buscar canción o artista..." class="px-3 py-2 rounded bg-gray-800/60 text-sm outline-none focus:ring-2 focus:ring-white/20" />
+        <input id="searchTrack" type="text" placeholder="Buscar canción o artista..." class="px-3 py-2 rounded bg-gray-800/60 text-sm outline-none focus:ring-2 focus:ring-white/20" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="none" inputmode="text" />
       </div>
     </div>
 
-    <!-- Search visible on mobile below title -->
     <div class="md:hidden mt-4">
-      <input id="searchTrackMobile" type="text" placeholder="Buscar canción o artista..." class="w-full px-3 py-2 rounded bg-gray-800/60 text-sm outline-none focus:ring-2 focus:ring-white/20" />
+      <input id="searchTrackMobile" type="text" placeholder="Buscar canción o artista..." class="w-full px-3 py-2 rounded bg-gray-800/60 text-sm outline-none focus:ring-2 focus:ring-white/20" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="none" inputmode="text" />
     </div>
 
     <section class="bg-gray-800/60 p-4 rounded-lg mt-6 flex flex-col gap-4">
@@ -91,8 +96,12 @@
           <div id="trackCount" class="text-xs opacity-70">0 canciones</div>
         </div>
         <div class="hidden md:flex items-center gap-2">
-          <button id="playAllBtn" class="px-3 py-2 rounded bg-white/6">▶ Reproducir todo</button>
-        </div>
+  <button id="playAllBtn" class="px-3 py-2 rounded bg-white/6 flex items-center gap-2">
+    <i class="fas fa-play"></i>
+    Reproducir todo
+  </button>
+</div>
+
       </div>
 
       <div class="overflow-y-auto" style="max-height: 58vh;">
@@ -115,13 +124,12 @@
     <div class="flex items-center justify-between">
       <h1 id="albumTitle" class="text-3xl font-extrabold">Cargando...</h1>
       <div class="hidden md:flex items-center gap-3">
-        <input id="searchTrackAlbum" type="text" placeholder="Buscar canción o artista..." class="px-3 py-2 rounded bg-gray-800/60 text-sm outline-none focus:ring-2 focus:ring-white/20" />
+        <input id="searchTrackAlbum" type="text" placeholder="Buscar canción o artista..." class="px-3 py-2 rounded bg-gray-800/60 text-sm outline-none focus:ring-2 focus:ring-white/20" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="none" inputmode="text" />
       </div>
     </div>
 
-    <!-- Search visible on mobile below title -->
     <div class="md:hidden mt-4">
-      <input id="searchTrackMobileAlbum" type="text" placeholder="Buscar canción o artista..." class="w-full px-3 py-2 rounded bg-gray-800/60 text-sm outline-none focus:ring-2 focus:ring-white/20" />
+      <input id="searchTrackMobileAlbum" type="text" placeholder="Buscar canción o artista..." class="w-full px-3 py-2 rounded bg-gray-800/60 text-sm outline-none focus:ring-2 focus:ring-white/20" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="none" inputmode="text" />
     </div>
 
     <section class="bg-gray-800/60 p-4 rounded-lg mt-6 flex flex-col gap-4">
@@ -131,9 +139,13 @@
           <div id="albumArtist" class="font-medium text-lg">Cargando...</div>
           <div id="albumTrackCount" class="text-xs opacity-70">0 canciones</div>
         </div>
-        <div class="hidden md:flex items-center gap-2">
-          <button id="albumPlayAllBtn" class="px-3 py-2 rounded bg-white/6">▶ Reproducir todo</button>
-        </div>
+       <div class="hidden md:flex items-center gap-2">
+  <button id="albumPlayAllBtn" class="px-3 py-2 rounded bg-white/6 flex items-center gap-2">
+    <i class="fas fa-play"></i>
+    Reproducir todo
+  </button>
+</div>
+
       </div>
 
       <div class="overflow-y-auto" style="max-height: 58vh;">
@@ -156,13 +168,9 @@
 <!-- Now Playing Bar -->
 <footer class="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-black via-gray-900 to-gray-800 p-3 border-t border-gray-700/30 z-50">
   <div class="max-w-[1200px] mx-auto flex items-center justify-between gap-4">
-
-    <!-- Cover -->
     <div class="flex-shrink-0">
       <img id="currentCover" src="https://via.placeholder.com/64" class="w-12 h-12 sm:w-14 sm:h-14 rounded" />
     </div>
-
-    <!-- Title + Artist -->
     <div class="flex-1 min-w-0 overflow-hidden">
       <div class="relative">
         <div class="animate-marquee whitespace-nowrap text-sm sm:text-base font-semibold" id="currentTitle">
@@ -173,8 +181,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Controls -->
     <div class="flex items-center gap-2 sm:gap-3">
       <button id="shuffleBtn" class="p-2 sm:p-2.5 rounded hover:bg-white/5">
         <i class="fas fa-random"></i>
@@ -189,10 +195,7 @@
         <i class="fas fa-forward"></i>
       </button>
     </div>
-
   </div>
-
-  <!-- Progress Bar -->
   <div class="mt-2 w-full px-3">
     <div class="w-full flex items-center gap-2">
       <div id="currentTime" class="text-xs opacity-60 w-10">0:00</div>
@@ -202,8 +205,6 @@
       <div id="totalTime" class="text-xs opacity-60 w-10 text-right">0:00</div>
     </div>
   </div>
-
-  <!-- Audio Element -->
   <audio id="audio"></audio>
 </footer>
 
