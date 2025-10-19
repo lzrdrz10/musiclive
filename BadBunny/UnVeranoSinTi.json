@@ -1,1 +1,32 @@
-code
+[
+  {
+    "id": 1,
+    "title": "El Hilito",
+    "artist": "Romeo Santos",
+    "album": "Formula VOL.2",
+    "duration": 120,
+    "url": "https://d500.d2mefast.net/tb/2/87/romeo_santos_hilito_audio_mp3_16701.mp3",
+    "cover": "assets/portadas/Formula2.jpg"
+  },
+  {
+    "id": 2,
+    "title": "Eres Mia",
+    "artist": "Romeo Santos",
+    "album": "Formula VOL.2",
+    "duration": 210,
+    "url": "https://d500.d2mefast.net/tb/6/f8/romeo_santos_eres_mia_mp3_17018.mp3",
+    "cover": "assets/portadas/Formula2.jpg"
+  },
+  {
+    "id": 3,
+    "title": "Inocente",
+    "artist": "Romeo Santos",
+    "album": "Formula VOL.2",
+    "duration": 180,
+    "url": "https://d500.d2mefast.net/tb/6/2d/romeo_santos_inocente_mp3_17062.mp3",
+    "cover": "assets/portadas/Formula2.jpg"
+  }
+]
+
+
+
