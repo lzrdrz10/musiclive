@@ -1,29 +1,191 @@
 [
   {
     "id": 1,
-    "title": "Ojitos Lindos",
+    "title": "Moscow Mule",
     "artist": "Bad Bunny",
     "album": "Un Verano Sin Ti",
-    "duration": 120,
-    "url": "https://d500.d2mefast.net/tb/3/51/bad_bunny_ojitos_lindos_la_letra_lyrics_ft._bomba_estereo_mp3_19931.mp3",
-    "cover": "assets/portadas/UnVeranoSinTi.jepg"
+    "duration": "4:05",
+    "url": "http://musiclive.lzplayhd.online/musicas/bad_bunny_moscow_mule_official_video_un_verano_sin_ti_mp3_31192.mp3",
+    "cover": "assets/portadas/UnVeranoSinTi.jpeg"
   },
   {
     "id": 2,
-    "title": "Me Porto Bonito",
+    "title": "Después de la Playa",
     "artist": "Bad Bunny",
     "album": "Un Verano Sin Ti",
-    "duration": 210,
-    "url": "https://d500.d2mefast.net/tb/e/fd/me_porto_bonito_mp3_20018.mp3",
-    "cover": "assets/portadas/UnVeranoSinTi.jepg"
+    "duration": "3:50",
+    "url": "http://musiclive.lzplayhd.online/musicas/bad_bunny_despues_de_la_playa_letra_lyrics_un_verano_sin_ti_mp3_31234.mp3",
+    "cover": "assets/portadas/UnVeranoSinTi.jpeg"
   },
   {
     "id": 3,
+    "title": "Me Porto Bonito",
+    "artist": "Bad Bunny",
+    "album": "Un Verano Sin Ti",
+    "duration": "2:58",
+    "url": "http://musiclive.lzplayhd.online/musicas/me_porto_bonito_mp3_31267.mp3",
+    "cover": "assets/portadas/UnVeranoSinTi.jpeg"
+  },
+  {
+    "id": 4,
+    "title": "Tití Me Preguntó",
+    "artist": "Bad Bunny",
+    "album": "Un Verano Sin Ti",
+    "duration": "4:03",
+    "url": "http://musiclive.lzplayhd.online/musicas/titi_me_pregunto_bad_bunny_audio_estudio_2022_mp3_32134.mp3",
+    "cover": "assets/portadas/UnVeranoSinTi.jpeg"
+  },
+  {
+    "id": 5,
+    "title": "Un Ratito",
+    "artist": "Bad Bunny",
+    "album": "Un Verano Sin Ti",
+    "duration": "2:56",
+    "url": "http://musiclive.lzplayhd.online/musicas/bad_bunny_un_ratito_letra_lyrics_mp3_32193.mp3",
+    "cover": "assets/portadas/UnVeranoSinTi.jpeg"
+  },
+  {
+    "id": 6,
+    "title": "Yo No Soy Celoso",
+    "artist": "Bad Bunny",
+    "album": "Un Verano Sin Ti",
+    "duration": "3:50",
+    "url": "http://musiclive.lzplayhd.online/musicas/bad_bunny_un_verano_sin_ti_un_verano_sin_ti_letra_mp3_32845.mp3",
+    "cover": "assets/portadas/UnVeranoSinTi.jpeg"
+  },
+  {
+    "id": 7,
+    "title": "Tarot",
+    "artist": "Bad Bunny",
+    "album": "Un Verano Sin Ti",
+    "duration": "3:57",
+    "url": "http://musiclive.lzplayhd.online/musicas/bad_bunny_tarot_feat._jhay_cortez_official_audio_mp3_32274.mp3",
+    "cover": "assets/portadas/UnVeranoSinTi.jpeg"
+  },
+  {
+    "id": 8,
     "title": "Neverita",
     "artist": "Bad Bunny",
     "album": "Un Verano Sin Ti",
-    "duration": 180,
-    "url": "https://d337.d2mefast.net/tb/c/10/bad_bunny_neverita_audio_mp3_20057.mp3",
-    "cover": "assets/portadas/UnVeranoSinTi.jepg"
+    "duration": "2:53",
+    "url": "http://musiclive.lzplayhd.online/musicas/bad_bunny_neverita_audio_mp3_32305.mp3",
+    "cover": "assets/portadas/UnVeranoSinTi.jpeg"
+  },
+  {
+    "id": 9,
+    "title": "La Corriente",
+    "artist": "Bad Bunny",
+    "album": "Un Verano Sin Ti",
+    "duration": "3:18",
+    "url": "http://musiclive.lzplayhd.online/musicas/la_corriente_tony_dize_bad_bunny_audio_official_mp3_32337.mp3",
+    "cover": "assets/portadas/UnVeranoSinTi.jpeg"
+  },
+  {
+    "id": 10,
+    "title": "Efecto",
+    "artist": "Bad Bunny",
+    "album": "Un Verano Sin Ti",
+    "duration": "3:33",
+    "url": "http://musiclive.lzplayhd.online/musicas/bad_bunny_efecto_mp3_32378.mp3",
+    "cover": "assets/portadas/UnVeranoSinTi.jpeg"
+  },
+  {
+    "id": 11,
+    "title": "Party",
+    "artist": "Bad Bunny",
+    "album": "Un Verano Sin Ti",
+    "duration": "3:47",
+    "url": "http://musiclive.lzplayhd.online/musicas/bad_bunny_party_mp3_32429.mp3",
+    "cover": "assets/portadas/UnVeranoSinTi.jpeg"
+  },
+  {
+    "id": 12,
+    "title": "Aguacero",
+    "artist": "Bad Bunny",
+    "album": "Un Verano Sin Ti",
+    "duration": "3:30",
+    "url": "http://musiclive.lzplayhd.online/musicas/bad_bunny_aguacero_mp3_32461.mp3",
+    "cover": "assets/portadas/UnVeranoSinTi.jpeg"
+  },
+  {
+    "id": 13,
+    "title": "Enséñame a Bailar",
+    "artist": "Bad Bunny",
+    "album": "Un Verano Sin Ti",
+    "duration": "2:56",
+    "url": "http://musiclive.lzplayhd.online/musicas/bad_bunny_ensename_a_bailar_mp3_32520.mp3",
+    "cover": "assets/portadas/UnVeranoSinTi.jpeg"
+  },
+  {
+    "id": 14,
+    "title": "Ojitos Lindos",
+    "artist": "Bad Bunny",
+    "album": "Un Verano Sin Ti",
+    "duration": "4:18",
+    "url": "http://musiclive.lzplayhd.online/musicas/bad_bunny_ojitos_lindos_la_letra_lyrics_ft._bomba_estereo_mp3_32565.mp3",
+    "cover": "assets/portadas/UnVeranoSinTi.jpeg"
+  },
+  {
+    "id": 15,
+    "title": "Dos Mil 16",
+    "artist": "Bad Bunny",
+    "album": "Un Verano Sin Ti",
+    "duration": "3:28",
+    "url": "http://musiclive.lzplayhd.online/musicas/bad_bunny_dos_mil_16_mp3_32605.mp3",
+    "cover": "assets/portadas/UnVeranoSinTi.jpeg"
+  },
+  {
+    "id": 16,
+    "title": "El Apagón",
+    "artist": "Bad Bunny",
+    "album": "Un Verano Sin Ti",
+    "duration": "3:21",
+    "url": "http://musiclive.lzplayhd.online/musicas/el_apagon_bad_bunny_mp3_32643.mp3",
+    "cover": "assets/portadas/UnVeranoSinTi.jpeg"
+  },
+  {
+    "id": 17,
+    "title": "Otro Atardecer",
+    "artist": "Bad Bunny",
+    "album": "Un Verano Sin Ti",
+    "duration": "4:04",
+    "url": "http://musiclive.lzplayhd.online/musicas/bad_bunny_otro_atardecer_feat._the_marias_mp3_32676.mp3",
+    "cover": "assets/portadas/UnVeranoSinTi.jpeg"
+  },
+  {
+    "id": 18,
+    "title": "Un Coco",
+    "artist": "Bad Bunny",
+    "album": "Un Verano Sin Ti",
+    "duration": "3:16",
+    "url": "http://musiclive.lzplayhd.online/musicas/bad_bunny_un_coco_letra_lyrics_mp3_32710.mp3",
+    "cover": "assets/portadas/UnVeranoSinTi.jpeg"
+  },
+  {
+    "id": 19,
+    "title": "Andrea",
+    "artist": "Bad Bunny",
+    "album": "Un Verano Sin Ti",
+    "duration": "5:39",
+    "url": "http://musiclive.lzplayhd.online/musicas/andrea_bad_bunny_buscabulla_clean_version_mp3_32758.mp3",
+    "cover": "assets/portadas/UnVeranoSinTi.jpeg"
+  },
+  {
+    "id": 20,
+    "title": "Me Fui de Vacaciones",
+    "artist": "Bad Bunny",
+    "album": "Un Verano Sin Ti",
+    "duration": "3:00",
+    "url": "http://musiclive.lzplayhd.online/musicas/bad_bunny_me_fui_de_vacaciones_letra_lyrics_mp3_32811.mp3",
+    "cover": "assets/portadas/UnVeranoSinTi.jpeg"
+  },
+  {
+    "id": 21,
+    "title": "Un Verano Sin Ti",
+    "artist": "Bad Bunny",
+    "album": "Un Verano Sin Ti",
+    "duration": "2:28",
+    "url": "http://musiclive.lzplayhd.online/musicas/bad_bunny_un_verano_sin_ti_un_verano_sin_ti_letra_mp3_32845.mp3",
+    "cover": "assets/portadas/UnVeranoSinTi.jpeg"
   }
 ]
