@@ -77,6 +77,31 @@ function updateFavUI() {
     footerFavBtn.textContent = isFav ? "★" : "☆";
     footerFavBtn.classList.toggle("active", isFav);
   }
+  
+  // Actualizar visualmente solo las filas que tienen el track actual como favorito
+  updateCurrentTrackFavoriteStatus();
+}
+
+function updateCurrentTrackFavoriteStatus() {
+  if (!current) return;
+  
+  // Buscar la fila actual en la vista actual y actualizar su estado visual si es necesario
+  var targetEl = currentView === 'album' ? albumTrackListEl : trackListEl;
+  if (targetEl) {
+    var rows = targetEl.querySelectorAll('tr');
+    rows.forEach(function(row) {
+      var trackData = row.dataset.track ? JSON.parse(row.dataset.track) : null;
+      if (trackData && trackData.id === current.id && trackData.album === current.album) {
+        // Actualizar la clase active-track si es necesario
+        var isFav = favorites.some(function(f){ return f.id === current.id && f.album === current.album; });
+        if (isFav) {
+          row.classList.add('active-favorite');
+        } else {
+          row.classList.remove('active-favorite');
+        }
+      }
+    });
+  }
 }
 
 function loadShuffleState() {
@@ -266,10 +291,14 @@ function loadAlbum(name) {
 function renderTracks(list, targetEl) {
   if (!targetEl) return;
   targetEl.innerHTML = "";
-  list.forEach(function(t) {
+  list.forEach(function(t, index) {
     var tr = document.createElement("tr");
     var activeCls = (current && current.id === t.id && current.album === t.album) ? "active-track" : "";
-    tr.className = "cursor-pointer hover:bg-gray-700/30 transition-colors duration-150 " + activeCls;
+    var isFav = favorites.some(function(f){ return f.id === t.id && f.album === t.album; });
+    var favCls = isFav ? "favorite-track" : "";
+    
+    tr.className = "cursor-pointer hover:bg-gray-700/30 transition-colors duration-150 " + activeCls + " " + favCls;
+    tr.dataset.track = JSON.stringify(t); // Almacenar datos del track para referencia
 
     tr.innerHTML = '\
       <td class="pl-4 py-3 align-middle">' + t.id + '</td>\
@@ -302,6 +331,7 @@ function renderTracks(list, targetEl) {
   });
 }
 
+// Función modificada para NO interrumpir la reproducción
 function toggleFavorite(track) {
   console.log("Toggling favorite for track:", track);
   console.log("Current favorites:", favorites);
@@ -313,10 +343,34 @@ function toggleFavorite(track) {
     favorites.splice(idx, 1);
     console.log("Removed from favorites:", track);
   }
+  
+  // Solo guardar y actualizar UI, NO re-renderizar vistas
   saveFavorites();
-  if (currentView === 'favoritos') showFavorites();
-  else if (currentView === 'welcome') showWelcome();
-  else if (currentView === 'album') loadAlbum(albumName);
+  
+  // Solo actualizar la vista actual si estamos en favoritos
+  if (currentView === 'favoritos') {
+    // Si estamos en la vista de favoritos, necesitamos actualizar la lista
+    // pero preservando la reproducción actual
+    var wasPlaying = isPlaying;
+    var currentTime = audio.currentTime;
+    showFavorites();
+    
+    // Restaurar reproducción si estaba sonando
+    if (wasPlaying && current) {
+      setTimeout(function() {
+        audio.currentTime = currentTime;
+        audio.play().then(function() {
+          isPlaying = true;
+          if (playBtn) playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        }).catch(function(e) {
+          console.error("Error restoring playback:", e);
+        });
+      }, 100);
+    }
+  } else {
+    // Para otras vistas, solo actualizar el estado visual del track actual
+    updateCurrentTrackFavoriteStatus();
+  }
 }
 
 function showFavorites() {
@@ -428,16 +482,30 @@ if (shuffleBtn) {
   };
 }
 
+// Event listener modificado para NO interrumpir la reproducción
 if (footerFavBtn) {
   footerFavBtn.onclick = function() {
     console.log("Favorites button clicked, current track:", current);
     if (current) {
+      // Guardar el estado de reproducción actual
+      var wasPlaying = isPlaying;
+      var currentTime = audio.currentTime;
+      
       toggleFavorite(current);
-      updateFavUI();
-      if (currentView === 'welcome' || currentView === 'favoritos' || currentView === 'search') {
-        renderTracks(displayedTracks, trackListEl);
-      } else if (currentView === 'album') {
-        renderTracks(displayedTracks, albumTrackListEl);
+      
+      // Restaurar reproducción si estaba sonando
+      if (wasPlaying) {
+        setTimeout(function() {
+          audio.currentTime = currentTime;
+          audio.play().then(function() {
+            isPlaying = true;
+            if (playBtn) playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+          }).catch(function(e) {
+            console.error("Error restoring playback after favorite toggle:", e);
+            isPlaying = true;
+            if (playBtn) playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+          });
+        }, 50);
       }
     } else {
       console.warn("No current track selected");
@@ -645,6 +713,32 @@ function escapeHtml(unsafe) {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
 }
+
+// Agregar CSS adicional para tracks favoritos
+var style = document.createElement('style');
+style.textContent = `
+  .favorite-track {
+    position: relative;
+  }
+  .favorite-track::before {
+    content: '★';
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #ffd700;
+    font-size: 0.8rem;
+    opacity: 0.7;
+    z-index: 10;
+  }
+  @media (max-width: 640px) {
+    .favorite-track::before {
+      right: 5px;
+      font-size: 0.7rem;
+    }
+  }
+`;
+document.head.appendChild(style);
 
 (async function init(){
   loadFavorites();
