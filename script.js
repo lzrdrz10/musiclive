@@ -114,7 +114,8 @@ async function loadAllAlbums() {
   var albums = [
     {name: "Formula2", artistFolder: "RomeoSantos", coverFile: "Formula2.JPEG", artist: "Romeo Santos"},
     {name: "UnVeranoSinTi", artistFolder: "BadBunny", coverFile: "UnVeranoSinTi.jpeg", artist: "Bad Bunny"},
-    {name: "TuUltimaCancion", artistFolder: "Temerarios", coverFile: "TuUltimaCancion.jpeg", artist: "Los Temerarios"}
+    {name: "TuUltimaCancion", artistFolder: "Temerarios", coverFile: "TuUltimaCancion.jpeg", artist: "Los Temerarios"},
+    {name: "album2", artistFolder: "Temerarios", coverFile: "album2.jpeg", artist: "Los Temerarios"}
   ];
 
   allTracks = [];
@@ -132,7 +133,6 @@ async function loadAllAlbums() {
       if (!Array.isArray(data) || data.length === 0) throw new Error(`JSON vacío o inválido para ${alb.name}`);
 
       var coverUrl = `https://raw.githubusercontent.com/lzrdrz10/musiclive/main/portadas/${alb.coverFile}`;
-      // Verificar si la imagen existe
       var coverRes = await fetch(coverUrl);
       if (!coverRes.ok) {
         console.warn(`Portada no encontrada para ${alb.name}: ${coverUrl}, usando placeholder`);
@@ -154,7 +154,6 @@ async function loadAllAlbums() {
       albumsTracks[alb.name] = tracks;
       allTracks.push(...tracks);
 
-      // Agrupar por artista
       if (!artists[alb.artist]) {
         artists[alb.artist] = [];
       }
@@ -165,7 +164,9 @@ async function loadAllAlbums() {
     }
   }
 
-  // Renderizar sidebar con acordeones
+  console.log("Álbumes cargados:", Object.keys(albumsTracks));
+  console.log("Artistas encontrados:", Object.keys(artists));
+
   renderSidebar();
 }
 
@@ -175,7 +176,6 @@ function renderSidebar() {
   var navHtml = '\
     <li class="flex items-center gap-3 hover:text-white cursor-pointer" data-view="welcome">🏠 Inicio</li>';
   
-  // Ordenar artistas alfabéticamente
   var artistNames = Object.keys(artists).sort();
   for (var artist of artistNames) {
     if (artists.hasOwnProperty(artist)) {
@@ -186,7 +186,8 @@ function renderSidebar() {
       artists[artist].forEach(function(alb) {
         var icon = alb.name === "Formula2" ? "🎵" :
                    alb.name === "UnVeranoSinTi" ? "🌴" :
-                   alb.name === "TuUltimaCancion" ? "❤️" : "💿";
+                   alb.name === "TuUltimaCancion" ? "❤️" :
+                   alb.name === "album2" ? "🎸" : "💿";
         navHtml += '<li><a href="?album=' + alb.name + '" class="hover:text-white">' + icon + ' ' + escapeHtml(alb.name) + '</a></li>';
       });
       navHtml += '</ul></details></li>';
@@ -201,7 +202,6 @@ function renderSidebar() {
 
   sidebarNav.innerHTML = navHtml;
 
-  // Re-asignar evento para favoritos
   var newFavNav = document.getElementById("favNav");
   if (newFavNav) {
     newFavNav.onclick = function() {
@@ -209,7 +209,6 @@ function renderSidebar() {
     };
   }
 
-  // Re-asignar eventos para Inicio
   var inicioNavs = document.querySelectorAll('[data-view="welcome"]');
   inicioNavs.forEach(function(n){ 
     n.onclick = function(){ 
@@ -227,7 +226,6 @@ function showWelcome() {
   displayedTracks = allTracks.slice();
   renderTracks(displayedTracks, trackListEl);
 
-  // Limpiar búsqueda al cambiar de vista
   if (searchInput) searchInput.value = "";
   if (searchInputMobile) searchInputMobile.value = "";
   if (searchInputAlbum) searchInputAlbum.value = "";
@@ -263,7 +261,6 @@ function loadAlbum(name) {
   localStorage.setItem("dp_lastAlbum", name);
   currentView = 'album';
 
-  // Limpiar búsqueda al cambiar de vista
   if (searchInput) searchInput.value = "";
   if (searchInputMobile) searchInputMobile.value = "";
   if (searchInputAlbum) searchInputAlbum.value = "";
@@ -326,7 +323,7 @@ function renderTracks(list, targetEl) {
 
 /* ===== Favoritos ===== */
 function toggleFavorite(track) {
-  var idx = favorites.findIndex(function(f){ return f.id === track.id && f.album === t.album; });
+  var idx = favorites.findIndex(function(f){ return f.id === track.id && f.album === track.album; });
   if (idx === -1) {
     favorites.push({...track});
   } else {
@@ -347,7 +344,6 @@ function showFavorites() {
   displayedTracks = favorites.slice();
   renderTracks(displayedTracks, trackListEl);
 
-  // Limpiar búsqueda al cambiar de vista
   if (searchInput) searchInput.value = "";
   if (searchInputMobile) searchInputMobile.value = "";
   if (searchInputAlbum) searchInputAlbum.value = "";
@@ -417,7 +413,7 @@ if (document.getElementById("nextBtn")) {
     if (isShuffling) {
       var next = getRandomTrack();
       while (next && current && next.id === current.id && next.album === current.album && displayedTracks.length > 1) {
-        next = getRandomTrack(); // Avoid playing the same track
+        next = getRandomTrack();
       }
       playTrack(next);
     } else {
@@ -434,7 +430,7 @@ if (document.getElementById("prevBtn")) {
     if (isShuffling) {
       var prev = getRandomTrack();
       while (prev && current && prev.id === current.id && prev.album === current.album && displayedTracks.length > 1) {
-        prev = getRandomTrack(); // Avoid playing the same track
+        prev = getRandomTrack();
       }
       playTrack(prev);
     } else {
@@ -569,7 +565,6 @@ if (hamburger) {
             <ul class="space-y-3 text-sm">\
               <li class="flex items-center gap-3 hover:text-white cursor-pointer" id="mInicio">🏠 Inicio</li>';
 
-    // Ordenar artistas alfabéticamente
     var artistNames = Object.keys(artists).sort();
     for (var artist of artistNames) {
       if (artists.hasOwnProperty(artist)) {
@@ -580,7 +575,8 @@ if (hamburger) {
         artists[artist].forEach(function(alb) {
           var icon = alb.name === "Formula2" ? "🎵" :
                      alb.name === "UnVeranoSinTi" ? "🌴" :
-                     alb.name === "TuUltimaCancion" ? "❤️" : "💿";
+                     alb.name === "TuUltimaCancion" ? "❤️" :
+                     alb.name === "album2" ? "🎸" : "💿";
           navHtml += '<li><a href="?album=' + alb.name + '" class="hover:text-white">' + icon + ' ' + escapeHtml(alb.name) + '</a></li>';
         });
         navHtml += '</ul></details></li>';
