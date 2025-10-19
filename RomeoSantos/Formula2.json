@@ -1,33 +1,173 @@
 [
   {
     "id": 1,
-    "title": "El Hilito",
+    "title": "Intro (Ft. Kevin Hart)",
     "artist": "Romeo Santos",
-    "album": "Formula VOL.2",
-    "duration": 120,
-    "url": "https://d500.d2mefast.net/tb/2/87/romeo_santos_hilito_audio_mp3_16701.mp3",
-    "cover": "assets/portadas/Formula2.jpg"
+    "album": "Fórmula, Vol. 2 (Deluxe Edition)",
+    "duration": 71,
+    "url": "http://musiclive.lzplayhd.online/TrackRomeoSantos/01.%20Intro%2C%20Vol.%202%20(feat.%20Kevin%20Hart).mp3",
+    "cover": "assets/portadas/Formula2.jpeg"
   },
   {
     "id": 2,
-    "title": "Eres Mia",
+    "title": "Inocente",
     "artist": "Romeo Santos",
-    "album": "Formula VOL.2",
-    "duration": 210,
-    "url": "https://d500.d2mefast.net/tb/6/f8/romeo_santos_eres_mia_mp3_17018.mp3",
-    "cover": "assets/portadas/Formula2.jpg"
+    "album": "Fórmula, Vol. 2 (Deluxe Edition)",
+    "duration": 236,
+    "url": "http://musiclive.lzplayhd.online/TrackRomeoSantos/02.%20Inocente.mp3",
+    "cover": "assets/portadas/Formula2.jpeg"
   },
   {
     "id": 3,
-    "title": "Inocente",
+    "title": "Necio (Ft. Carlos Santana)",
     "artist": "Romeo Santos",
-    "album": "Formula VOL.2",
-    "duration": 180,
-    "url": "https://d500.d2mefast.net/tb/6/2d/romeo_santos_inocente_mp3_17062.mp3",
-    "cover": "assets/portadas/Formula2.jpg"
+    "album": "Fórmula, Vol. 2 (Deluxe Edition)",
+    "duration": 264,
+    "url": "http://musiclive.lzplayhd.online/TrackRomeoSantos/03.%20Necio%20(feat.%20Santana).mp3",
+    "cover": "assets/portadas/Formula2.jpeg"
+  },
+  {
+    "id": 4,
+    "title": "Amigo",
+    "artist": "Romeo Santos",
+    "album": "Fórmula, Vol. 2 (Deluxe Edition)",
+    "duration": 231,
+    "url": "http://musiclive.lzplayhd.online/TrackRomeoSantos/04.%20Amigo.mp3",
+    "cover": "assets/portadas/Formula2.jpeg"
+  },
+  {
+    "id": 5,
+    "title": "Cancioncitas de Amor",
+    "artist": "Romeo Santos",
+    "album": "Fórmula, Vol. 2 (Deluxe Edition)",
+    "duration": 237,
+    "url": "http://musiclive.lzplayhd.online/TrackRomeoSantos/05.%20Cancioncitas%20De%20Amor.mp3",
+    "cover": "assets/portadas/Formula2.jpeg"
+  },
+  {
+    "id": 6,
+    "title": "Eres Mía",
+    "artist": "Romeo Santos",
+    "album": "Fórmula, Vol. 2 (Deluxe Edition)",
+    "duration": 250,
+    "url": "http://musiclive.lzplayhd.online/TrackRomeoSantos/06.%20Eres%20M%C3%ADa.mp3",
+    "cover": "assets/portadas/Formula2.jpeg"
+  },
+  {
+    "id": 7,
+    "title": "Odio (Ft. Drake)",
+    "artist": "Romeo Santos",
+    "album": "Fórmula, Vol. 2 (Deluxe Edition)",
+    "duration": 224,
+    "url": "http://musiclive.lzplayhd.online/TrackRomeoSantos/07.%20Odio%20(feat.%20Drake).mp3",
+    "cover": "assets/portadas/Formula2.jpeg"
+  },
+  {
+    "id": 8,
+    "title": "Hilito",
+    "artist": "Romeo Santos",
+    "album": "Fórmula, Vol. 2 (Deluxe Edition)",
+    "duration": 234,
+    "url": "http://musiclive.lzplayhd.online/TrackRomeoSantos/08.%20Hilito.mp3",
+    "cover": "assets/portadas/Formula2.jpeg"
+  },
+  {
+    "id": 9,
+    "title": "Yo También (Ft. Marc Anthony)",
+    "artist": "Romeo Santos",
+    "album": "Fórmula, Vol. 2 (Deluxe Edition)",
+    "duration": 306,
+    "url": "http://musiclive.lzplayhd.online/TrackRomeoSantos/09.%20Yo%20Tambi%C3%A9n%20(feat.%20Marc%20Anthony).mp3",
+    "cover": "assets/portadas/Formula2.jpeg"
+  },
+  {
+    "id": 10,
+    "title": "Fui a Jamaica",
+    "artist": "Romeo Santos",
+    "album": "Fórmula, Vol. 2 (Deluxe Edition)",
+    "duration": 235,
+    "url": "http://musiclive.lzplayhd.online/TrackRomeoSantos/10.%20Fui%20a%20Jamaica.mp3",
+    "cover": "assets/portadas/Formula2.jpeg"
+  },
+  {
+    "id": 11,
+    "title": "No Tiene la Culpa",
+    "artist": "Romeo Santos",
+    "album": "Fórmula, Vol. 2 (Deluxe Edition)",
+    "duration": 304,
+    "url": "http://musiclive.lzplayhd.online/TrackRomeoSantos/11.%20No%20Tiene%20la%20Culpa.mp3",
+    "cover": "assets/portadas/Formula2.jpeg"
+  },
+  {
+    "id": 12,
+    "title": "Animales (Ft. Nicki Minaj)",
+    "artist": "Romeo Santos",
+    "album": "Fórmula, Vol. 2 (Deluxe Edition)",
+    "duration": 169,
+    "url": "http://musiclive.lzplayhd.online/TrackRomeoSantos/12.%20Animales%20(feat.%20Nicki%20Minaj).mp3",
+    "cover": "assets/portadas/Formula2.jpeg"
+  },
+  {
+    "id": 13,
+    "title": "Propuesta Indecente",
+    "artist": "Romeo Santos",
+    "album": "Fórmula, Vol. 2 (Deluxe Edition)",
+    "duration": 235,
+    "url": "http://musiclive.lzplayhd.online/TrackRomeoSantos/13.%20Propuesta%20Indecente.mp3",
+    "cover": "assets/portadas/Formula2.jpeg"
+  },
+  {
+    "id": 14,
+    "title": "Obra Maestra",
+    "artist": "Romeo Santos",
+    "album": "Fórmula, Vol. 2 (Deluxe Edition)",
+    "duration": 245,
+    "url": "http://musiclive.lzplayhd.online/TrackRomeoSantos/14.%20Obra%20Maestra.mp3",
+    "cover": "assets/portadas/Formula2.jpeg"
+  },
+  {
+    "id": 15,
+    "title": "7 Días",
+    "artist": "Romeo Santos",
+    "album": "Fórmula, Vol. 2 (Deluxe Edition)",
+    "duration": 253,
+    "url": "http://musiclive.lzplayhd.online/TrackRomeoSantos/15.%207%20D%C3%ADas.mp3",
+    "cover": "assets/portadas/Formula2.jpeg"
+  },
+  {
+    "id": 16,
+    "title": "Si Yo Muero",
+    "artist": "Romeo Santos",
+    "album": "Fórmula, Vol. 2 (Deluxe Edition)",
+    "duration": 202,
+    "url": "http://musiclive.lzplayhd.online/TrackRomeoSantos/16.%20Si%20Yo%20Muero.mp3",
+    "cover": "assets/portadas/Formula2.jpeg"
+  },
+  {
+    "id": 17,
+    "title": "Outro",
+    "artist": "Romeo Santos",
+    "album": "Fórmula, Vol. 2 (Deluxe Edition)",
+    "duration": 142,
+    "url": "http://musiclive.lzplayhd.online/TrackRomeoSantos/17.%20Outro.mp3",
+    "cover": "assets/portadas/Formula2.jpeg"
+  },
+  {
+    "id": 18,
+    "title": "Trust (Ft. Tego Calderón)",
+    "artist": "Romeo Santos",
+    "album": "Fórmula, Vol. 2 (Deluxe Edition)",
+    "duration": 231,
+    "url": "http://musiclive.lzplayhd.online/TrackRomeoSantos/18.%20Trust%20(feat.%20Tego%20Calder%C3%B3n).mp3",
+    "cover": "assets/portadas/Formula2.jpeg"
+  },
+  {
+    "id": 19,
+    "title": "Mami",
+    "artist": "Romeo Santos",
+    "album": "Fórmula, Vol. 2 (Deluxe Edition)",
+    "duration": 94,
+    "url": "http://musiclive.lzplayhd.online/TrackRomeoSantos/19.%20Mami.mp3",
+    "cover": "assets/portadas/Formula2.jpeg"
   }
 ]
-
-
-
-
