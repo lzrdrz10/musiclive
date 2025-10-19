@@ -552,25 +552,30 @@ function applySearch(term) {
 
 var debouncedSearch = debounce(applySearch, 300);
 
-// Usar addEventListener para capturar entrada cruda
+/* ===== Configurar el input del buscador ===== */
 function setupSearchInput(input) {
   if (!input) return;
+
+  // ✅ Escucha cuando el texto cambia (permite espacios y acentos)
   input.addEventListener('input', function(e) {
-    console.log("Raw input event on", input.id, "value:", JSON.stringify(e.target.value));
-    e.preventDefault();
+    // No usamos preventDefault aquí, para no bloquear la escritura
     debouncedSearch(e.target.value);
   });
+
+  // ✅ Detecta cuando se presiona Enter (para evitar enviar formularios)
   input.addEventListener('keydown', function(e) {
     console.log("Keydown event on", input.id, "key:", e.key, "value:", JSON.stringify(e.target.value));
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
+    if (e.key === "Enter") {
+      e.preventDefault(); // solo bloquea Enter
       debouncedSearch(e.target.value);
     }
   });
-  // Manejar composición de texto para teclados móviles
+
+  // ✅ Soporte para teclados móviles o con predicción
   input.addEventListener('compositionstart', function() {
     console.log("Composition started on", input.id);
   });
+
   input.addEventListener('compositionend', function(e) {
     console.log("Composition ended on", input.id, "value:", JSON.stringify(e.target.value));
     debouncedSearch(e.target.value);
