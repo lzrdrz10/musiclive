@@ -549,13 +549,20 @@ var debouncedSearch = debounce(applySearch, 300);
 function setupSearchInput(input) {
   if (!input) return;
 
-  // Evitar que el teclado se cierre automáticamente en móviles
-  input.addEventListener('blur', function(e) {
-    if (!input.dataset.allowBlur) {
-      e.preventDefault();
-      input.focus();
-    }
-  });
+  // Detectar si es móvil
+  var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+  if (isMobile) {
+    // Evitar que el teclado se cierre automáticamente en móviles
+    input.addEventListener('blur', function(e) {
+      if (!input.dataset.allowBlur) {
+        e.preventDefault();
+        setTimeout(function() {
+          input.focus(); // fuerza que siga enfocado
+        }, 50); // pequeño delay para evitar conflicto inicial
+      }
+    });
+  }
 
   // Escucha cuando el texto cambia (permite espacios y acentos)
   input.addEventListener('input', function(e) {
@@ -587,6 +594,7 @@ setupSearchInput(searchInput);
 setupSearchInput(searchInputMobile);
 setupSearchInput(searchInputAlbum);
 setupSearchInput(searchInputMobileAlbum);
+
 
 
 /* ===== Play All ===== */
