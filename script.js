@@ -549,35 +549,28 @@ var debouncedSearch = debounce(applySearch, 300);
 function setupSearchInput(input) {
   if (!input) return;
 
-  // Evitar que el teclado se cierre automáticamente en móviles
-  input.addEventListener('blur', function(e) {
-    if (!input.dataset.allowBlur) {
-      e.preventDefault();
-      input.focus();
-    }
-  });
-
   // Escucha cuando el texto cambia (permite espacios y acentos)
   input.addEventListener('input', function(e) {
+    console.log("Input value:", e.target.value); // Depuración
     debouncedSearch(e.target.value);
   });
 
-  // Detecta cuando se presiona Enter (permite cerrar teclado)
+  // Detecta cuando se presiona Enter (sin cerrar teclado inmediatamente)
   input.addEventListener('keydown', function(e) {
     if (e.key === "Enter") {
       e.preventDefault();
-      input.dataset.allowBlur = true;
-      input.blur(); // cierra teclado en móvil
+      console.log("Enter pressed, value:", e.target.value); // Depuración
       debouncedSearch(e.target.value);
-      setTimeout(function() {
-        input.dataset.allowBlur = false; // resetea
-      }, 100);
+      // Mantener el foco en el input para evitar cierre del teclado
     }
   });
 
   // Soporte para teclados con composición (móviles)
-  input.addEventListener('compositionstart', function() {});
+  input.addEventListener('compositionstart', function() {
+    console.log("Composition started"); // Depuración
+  });
   input.addEventListener('compositionend', function(e) {
+    console.log("Composition ended, value:", e.target.value); // Depuración
     debouncedSearch(e.target.value);
   });
 }
@@ -587,7 +580,6 @@ setupSearchInput(searchInput);
 setupSearchInput(searchInputMobile);
 setupSearchInput(searchInputAlbum);
 setupSearchInput(searchInputMobileAlbum);
-
 
 /* ===== Play All ===== */
 if (playAllBtn) {
