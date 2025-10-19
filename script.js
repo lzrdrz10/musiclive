@@ -496,6 +496,14 @@ if (audio) {
   };
 }
 
+function normalizeText(text) {
+  if (!text) return "";
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
 function applySearch(term) {
   if (!term || term.trim() === "") {
     if (currentView === 'search') {
@@ -510,11 +518,11 @@ function applySearch(term) {
 
   if (!previousView) previousView = currentView;
 
-  var terms = term.toLowerCase().split(/\s+/).filter(t => t.length > 0);
+  var terms = normalizeText(term).split(/\s+/).filter(t => t.length > 0);
 
   displayedTracks = allTracks.filter(function(t) {
-    var title = (t.title || "").toLowerCase();
-    var artist = (t.artist || "").toLowerCase();
+    var title = normalizeText(t.title || "");
+    var artist = normalizeText(t.artist || "");
     return terms.every(function(word) {
       return title.includes(word) || artist.includes(word);
     });
