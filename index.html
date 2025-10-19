@@ -19,6 +19,8 @@ body { background-color: #111827; color: #f3f4f6; font-family: sans-serif; }
   <nav class="flex-1">
     <ul class="space-y-3 text-sm">
       <li class="flex items-center gap-3 hover:text-white cursor-pointer">🏠 Inicio</li>
+      <li><a href="?album=Formula2" class="hover:text-white">🎵 Romeo Santos - Fórmula Vol.2</a></li>
+      <li><a href="?album=UnVeranoSinTi" class="hover:text-white">🌴 Bad Bunny - Un Verano Sin Ti</a></li>
     </ul>
   </nav>
   <div class="text-xs opacity-70">© Tu estudio · Demo</div>
@@ -121,70 +123,51 @@ function formatTime(sec) {
 }
 
 async function loadAlbum(name) {
-  console.log(`Intentando cargar álbum: ${name}`);
   if (!name) {
-    console.error("No se proporcionó un nombre de álbum en la URL");
-    albumTitle.textContent = "Error: No se especificó un álbum";
+    albumTitle.textContent = "Selecciona un álbum";
     return;
   }
 
   try {
-    // Determine artist folder and cover file based on album name
     let artistFolder = "";
     let coverFile = "default.jpg";
     if (name === "Formula2") {
       artistFolder = "RomeoSantos";
-      coverFile = "Formula2.jpg"; // Asegúrate de que este archivo existe
+      coverFile = "Formula2.JPEG"; // usa .JPEG si así está en GitHub
     } else if (name === "UnVeranoSinTi") {
       artistFolder = "BadBunny";
-      coverFile = "UnVeranoSinTi.jpg"; // Asegúrate de que este archivo existe
+      coverFile = "UnVeranoSinTi.jpeg";
     } else {
       throw new Error(`Álbum desconocido: ${name}`);
     }
 
-    // Fetch JSON from GitHub
+    // Cargar JSON desde GitHub
     const jsonUrl = `https://raw.githubusercontent.com/lzrdrz10/musiclive/main/${artistFolder}/${name}.json`;
-    console.log(`Cargando JSON desde: ${jsonUrl}`);
     const res = await fetch(jsonUrl);
-    if (!res.ok) throw new Error(`Error al cargar JSON: ${res.status} ${res.statusText}`);
+    if (!res.ok) throw new Error(`Error al cargar JSON: ${res.status}`);
     const data = await res.json();
-    console.log("JSON cargado:", data);
 
-    // Validate JSON structure
-    if (!Array.isArray(data) || data.length === 0) {
-      throw new Error("El JSON no contiene datos válidos o está vacío");
-    }
+    if (!Array.isArray(data) || data.length === 0) throw new Error("JSON vacío o inválido");
 
-    // Update album metadata
     albumTitle.textContent = data[0].album || name;
     albumArtist.textContent = data[0].artist || "Desconocido";
-    
-    // Set album cover from GitHub
-    const coverUrl = `https://raw.githubusercontent.com/lzrdrz10/musiclive/main/assets/portadas/${coverFile}`;
-    console.log(`Cargando portada desde: ${coverUrl}`);
+
+    const coverUrl = `https://raw.githubusercontent.com/lzrdrz10/musiclive/main/portadas/${coverFile}`;
     albumCover.src = coverUrl;
-    
-    // Map tracks and set cover URLs
-    tracks = data.map(track => ({
-      ...track,
-      cover: coverUrl
-    }));
-    
+
+    tracks = data.map(t => ({ ...t, cover: coverUrl }));
     trackCount.textContent = tracks.length + " canciones";
-    console.log("Pistas cargadas:", tracks);
     loadTrack(tracks[0]);
     renderTracks(tracks);
-  } catch(e) {
-    console.error("Error cargando el álbum:", e);
+  } catch (e) {
+    console.error(e);
     albumTitle.textContent = "Error al cargar el álbum";
     albumArtist.textContent = "No disponible";
-    trackCount.textContent = "0 canciones";
     albumCover.src = "https://via.placeholder.com/96";
   }
 }
 
 function loadTrack(track) {
-  console.log("Cargando pista:", track);
   current = track;
   audio.src = track.url;
   currentCover.src = track.cover || "https://via.placeholder.com/64";
@@ -195,56 +178,51 @@ function loadTrack(track) {
 }
 
 function renderTracks(list) {
-  console.log("Renderizando pistas:", list);
   trackList.innerHTML = "";
   list.forEach(t => {
     const tr = document.createElement("tr");
     tr.className = `cursor-pointer hover:bg-gray-700/30 ${t.id === current?.id ? "bg-gray-700/60" : ""}`;
     tr.innerHTML = `
-      <td class="pl-3 py-3">${t.id || "-"}</td>
+      <td class="pl-3 py-3">${t.id}</td>
       <td>
         <div class="flex items-center gap-3">
-          <img src="${t.cover || 'https://via.placeholder.com/40'}" class="w-10 h-10 rounded" />
+          <img src="${t.cover}" class="w-10 h-10 rounded" />
           <div>
-            <div class="font-medium">${t.title || "Sin título"}</div>
-            <div class="text-xs opacity-70">${t.artist || "Desconocido"}</div>
+            <div class="font-medium">${t.title}</div>
+            <div class="text-xs opacity-70">${t.artist}</div>
           </div>
         </div>
       </td>
-      <td class="text-right pr-3">${formatTime(t.duration || 0)}</td>`;
+      <td class="text-right pr-3">${formatTime(t.duration)}</td>`;
     tr.onclick = () => playTrack(t);
     trackList.appendChild(tr);
   });
 }
 
 function playTrack(track) {
-  console.log("Reproduciendo pista:", track);
   if (!current || current.id !== track.id) loadTrack(track);
-  audio.play().catch(e => console.error("Error al reproducir audio:", e));
+  audio.play();
   isPlaying = true;
   playBtn.textContent = "⏸";
 }
 
 playBtn.onclick = () => {
-  console.log("Botón de reproducción/pausa clicado, isPlaying:", isPlaying);
   if (isPlaying) {
     audio.pause();
     playBtn.textContent = "▶";
   } else {
-    audio.play().catch(e => console.error("Error al reproducir audio:", e));
+    audio.play();
     playBtn.textContent = "⏸";
   }
   isPlaying = !isPlaying;
 };
 
 document.getElementById("nextBtn").onclick = () => {
-  console.log("Botón siguiente clicado");
   const idx = tracks.findIndex(t => t.id === current?.id);
   playTrack(tracks[(idx + 1) % tracks.length]);
 };
 
 document.getElementById("prevBtn").onclick = () => {
-  console.log("Botón anterior clicado");
   const idx = tracks.findIndex(t => t.id === current?.id);
   playTrack(tracks[(idx - 1 + tracks.length) % tracks.length]);
 };
@@ -262,22 +240,16 @@ document.getElementById("progressBar").onclick = (e) => {
 };
 
 volumeControl.oninput = (e) => {
-  console.log("Ajustando volumen a:", e.target.value);
   audio.volume = e.target.value;
 };
 
 audio.onended = () => {
-  console.log("Audio terminado, pasando al siguiente");
   document.getElementById("nextBtn").click();
 };
 
-// Load album if albumName is provided
-console.log("Album name from URL:", albumName);
-if (albumName) {
-  loadAlbum(albumName);
-} else {
-  albumTitle.textContent = "Por favor, selecciona un álbum";
-}
+// Cargar álbum al abrir
+if (albumName) loadAlbum(albumName);
+else albumTitle.textContent = "Selecciona un álbum del menú";
 </script>
 </body>
 </html>
