@@ -5,7 +5,7 @@
     "artist": "Los Temerarios",
     "album": "Tu Ultima Cancion",
     "duration": 240,
-    "url": "https://github.com/lzrdrz10/musiclive/blob/main/musicas/tu_ultima_cancion_mp3_26311.mp3",
+    "url": "https://github.com/lzrdrz10/musiclive/raw/refs/heads/main/musicas/tu_ultima_cancion_mp3_26311.mp3",
     "cover": "assets/portadas/TuUltimaCancion.jpeg"
   },
    {
@@ -14,7 +14,7 @@
     "artist": "Los Temerarios",
     "album": "Tu Ultima Cancion",
     "duration": 240,
-    "url": "https://github.com/lzrdrz10/musiclive/blob/main/musicas/corazon_de_otro_mp3_26386.mp3",
+    "url": "https://github.com/lzrdrz10/musiclive/raw/refs/heads/main/musicas/corazon_de_otro_mp3_26386.mp3",
     "cover": "assets/portadas/TuUltimaCancion.jpeg"
   },
    {
@@ -23,7 +23,7 @@
     "artist": "Los Temerarios",
     "album": "Tu Ultima Cancion",
     "duration": 240,
-    "url": "https://github.com/lzrdrz10/musiclive/blob/main/musicas/los_temerarios_la_mujer_que_sone_mp3_26427.mp3",
+    "url": "https://github.com/lzrdrz10/musiclive/raw/refs/heads/main/musicas/los_temerarios_la_mujer_que_sone_mp3_26427.mp3",
     "cover": "assets/portadas/TuUltimaCancion.jpeg"
   },
    {
@@ -32,7 +32,7 @@
     "artist": "Los Temerarios",
     "album": "Tu Ultima Cancion",
     "duration": 240,
-    "url": "https://github.com/lzrdrz10/musiclive/blob/main/musicas/ahora_pienso_mas_en_ti_mp3_26461.mp3",
+    "url": "https://github.com/lzrdrz10/musiclive/raw/refs/heads/main/musicas/ahora_pienso_mas_en_ti_mp3_26461.mp3",
     "cover": "assets/portadas/TuUltimaCancion.jpeg"
   },
    {
@@ -41,7 +41,7 @@
     "artist": "Los Temerarios",
     "album": "Tu Ultima Cancion",
     "duration": 240,
-    "url": "https://github.com/lzrdrz10/musiclive/blob/main/musicas/los_temerarios_eres_un_sueno_remasterizado_2020_audio_mp3_26503.mp3",
+    "url": "https://github.com/lzrdrz10/musiclive/raw/refs/heads/main/musicas/los_temerarios_eres_un_sueno_remasterizado_2020_audio_mp3_26503.mp3",
     "cover": "assets/portadas/TuUltimaCancion.jpeg"
   },
    {
@@ -50,7 +50,7 @@
     "artist": "Los Temerarios",
     "album": "Tu Ultima Cancion",
     "duration": 240,
-    "url": "https://github.com/lzrdrz10/musiclive/blob/main/musicas/una_tarde_fue_mp3_26535.mp3",
+    "url": "https://github.com/lzrdrz10/musiclive/raw/refs/heads/main/musicas/una_tarde_fue_mp3_26535.mp3",
     "cover": "assets/portadas/TuUltimaCancion.jpeg"
   },
    {
@@ -59,7 +59,7 @@
     "artist": "Los Temerarios",
     "album": "Tu Ultima Cancion",
     "duration": 240,
-    "url": "https://github.com/lzrdrz10/musiclive/blob/main/musicas/enamorado_de_ti_mp3_26610.mp3",
+    "url": "https://github.com/lzrdrz10/musiclive/raw/refs/heads/main/musicas/enamorado_de_ti_mp3_26610.mp3",
     "cover": "assets/portadas/TuUltimaCancion.jpeg"
   },
    {
@@ -68,7 +68,7 @@
     "artist": "Los Temerarios",
     "album": "Tu Ultima Cancion",
     "duration": 240,
-    "url": "https://github.com/lzrdrz10/musiclive/blob/main/musicas/mi_secreto_mp3_26651.mp3",
+    "url": "https://github.com/lzrdrz10/musiclive/raw/refs/heads/main/musicas/mi_secreto_mp3_26651.mp3",
     "cover": "assets/portadas/TuUltimaCancion.jpeg"
   },
    {
@@ -77,7 +77,7 @@
     "artist": "Los Temerarios",
     "album": "Tu Ultima Cancion",
     "duration": 240,
-    "url": "https://github.com/lzrdrz10/musiclive/blob/main/musicas/voy_a_quererte_mas_mp3_26687.mp3",
+    "url": "https://github.com/lzrdrz10/musiclive/raw/refs/heads/main/musicas/voy_a_quererte_mas_mp3_26687.mp3",
     "cover": "assets/portadas/TuUltimaCancion.jpeg"
   },
    {
@@ -86,7 +86,8 @@
     "artist": "Los Temerarios",
     "album": "Tu Ultima Cancion",
     "duration": 240,
-    "url": "https://github.com/lzrdrz10/musiclive/blob/main/musicas/me_empiezo_a_enamorar_mp3_26717.mp3",
+    "url": "https://github.com/lzrdrz10/musiclive/raw/refs/heads/main/musicas/me_empiezo_a_enamorar_mp3_26717.mp3",
     "cover": "assets/portadas/TuUltimaCancion.jpeg"
   }
 ]
+
