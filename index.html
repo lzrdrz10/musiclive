@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-<title>MUSICLIVE</title>
+<title>DarkPlayer 2.0</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
   body { background-color: #0b1220; color: #e6eef8; font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
@@ -24,6 +24,14 @@
     will-change: transform;
     animation: marquee 10s linear infinite;
   }
+  #shuffleBtn.active { color: #3b82f6; } /* Blue color when shuffle is active */
+  /* Accordion styling */
+  details > summary { cursor: pointer; list-style: none; }
+  details > summary::-webkit-details-marker { display: none; }
+  details > summary::before { content: '▶'; display: inline-block; margin-right: 8px; transition: transform 0.2s; }
+  details[open] > summary::before { transform: rotate(90deg); }
+  details > ul { margin-top: 8px; margin-left: 20px; }
+  details > ul > li { padding: 4px 0; }
 </style>
 </head>
 <body class="min-h-screen">
@@ -31,15 +39,14 @@
 <!-- Sidebar (desktop) -->
 <aside id="sidebar" class="hidden md:flex fixed left-0 top-0 bottom-0 w-72 bg-gradient-to-b from-gray-900 to-black p-5 flex-col gap-6 z-40 shadow-xl">
   <div class="flex items-center justify-between">
-    <div class="text-2xl font-black">MusicLive</div>
+    <div class="text-2xl font-black">DarkPlayer</div>
     <button id="closeSidebarBtn" class="md:hidden p-2 rounded hover:bg-white/5">✕</button>
   </div>
 
   <nav class="flex-1">
-    <ul class="space-y-3 text-sm">
-      <li class="flex items-center gap-3 hover:text-white cursor-pointer" data-view="inicio">🏠 Inicio</li>
-      <li><a href="?album=Formula2" class="hover:text-white">🎵 Romeo Santos - Fórmula Vol.2</a></li>
-      <li><a href="?album=UnVeranoSinTi" class="hover:text-white">🌴 Bad Bunny - Un Verano Sin Ti</a></li>
+    <ul class="space-y-3 text-sm" id="sidebarNav">
+      <li class="flex items-center gap-3 hover:text-white cursor-pointer" data-view="welcome">🏠 Inicio</li>
+      <!-- Artists and albums will be populated dynamically -->
       <li class="pt-4 border-t border-gray-800 text-xs opacity-80">Listas</li>
       <li class="flex items-center gap-3 hover:text-white cursor-pointer" id="favNav">
         ⭐ Favoritos <span id="favCount" class="ml-2 text-xs opacity-70">0</span>
@@ -64,44 +71,86 @@
 
 <!-- Main area -->
 <main class="md:ml-72 p-6 pb-28">
-  <div class="flex items-center justify-between">
-    <h1 id="albumTitle" class="text-3xl font-extrabold">Cargando...</h1>
-    <div class="hidden md:flex items-center gap-3">
-      <input id="searchTrack" type="text" placeholder="Buscar canción o artista..." class="px-3 py-2 rounded bg-gray-800/60 text-sm outline-none focus:ring-2 focus:ring-white/20" />
-    </div>
-  </div>
-
-  <!-- Search visible on mobile below title -->
-  <div class="md:hidden mt-4">
-    <input id="searchTrackMobile" type="text" placeholder="Buscar canción o artista..." class="w-full px-3 py-2 rounded bg-gray-800/60 text-sm outline-none focus:ring-2 focus:ring-white/20" />
-  </div>
-
-  <section class="bg-gray-800/60 p-4 rounded-lg mt-6 flex flex-col gap-4">
-    <div class="flex items-center gap-4 mb-4">
-      <img id="albumCover" src="https://via.placeholder.com/96" class="w-24 h-24 rounded" />
-      <div class="flex-1">
-        <div id="albumArtist" class="font-medium text-lg">Cargando...</div>
-        <div id="trackCount" class="text-xs opacity-70">0 canciones</div>
-      </div>
-      <div class="hidden md:flex items-center gap-2">
-        <button id="playAllBtn" class="px-3 py-2 rounded bg-white/6">▶ Reproducir todo</button>
+  <div id="welcomeSection" class="hidden">
+    <div class="flex items-center justify-between">
+      <h1 class="text-3xl font-extrabold">Bienvenido a DarkPlayer</h1>
+      <div class="hidden md:flex items-center gap-3">
+        <input id="searchTrack" type="text" placeholder="Buscar canción o artista..." class="px-3 py-2 rounded bg-gray-800/60 text-sm outline-none focus:ring-2 focus:ring-white/20" />
       </div>
     </div>
 
-    <div class="overflow-y-auto" style="max-height: 58vh;">
-      <table class="w-full table-auto text-left">
-        <thead class="text-xs text-gray-400 sticky top-0 bg-gray-800/60">
-          <tr>
-            <th class="pl-3 w-12">#</th>
-            <th>Título</th>
-            <th class="text-right pr-3 w-20">Duración</th>
-            <th class="w-14"></th>
-          </tr>
-        </thead>
-        <tbody id="trackList"></tbody>
-      </table>
+    <!-- Search visible on mobile below title -->
+    <div class="md:hidden mt-4">
+      <input id="searchTrackMobile" type="text" placeholder="Buscar canción o artista..." class="w-full px-3 py-2 rounded bg-gray-800/60 text-sm outline-none focus:ring-2 focus:ring-white/20" />
     </div>
-  </section>
+
+    <section class="bg-gray-800/60 p-4 rounded-lg mt-6 flex flex-col gap-4">
+      <div class="flex items-center gap-4 mb-4">
+        <div class="flex-1">
+          <div class="font-medium text-lg">Todas las canciones</div>
+          <div id="trackCount" class="text-xs opacity-70">0 canciones</div>
+        </div>
+        <div class="hidden md:flex items-center gap-2">
+          <button id="playAllBtn" class="px-3 py-2 rounded bg-white/6">▶ Reproducir todo</button>
+        </div>
+      </div>
+
+      <div class="overflow-y-auto" style="max-height: 58vh;">
+        <table class="w-full table-auto text-left">
+          <thead class="text-xs text-gray-400 sticky top-0 bg-gray-800/60">
+            <tr>
+              <th class="pl-3 w-12">#</th>
+              <th>Título</th>
+              <th class="text-right pr-3 w-20">Duración</th>
+              <th class="w-14"></th>
+            </tr>
+          </thead>
+          <tbody id="trackList"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <div id="albumSection" class="hidden">
+    <div class="flex items-center justify-between">
+      <h1 id="albumTitle" class="text-3xl font-extrabold">Cargando...</h1>
+      <div class="hidden md:flex items-center gap-3">
+        <input id="searchTrackAlbum" type="text" placeholder="Buscar canción o artista..." class="px-3 py-2 rounded bg-gray-800/60 text-sm outline-none focus:ring-2 focus:ring-white/20" />
+      </div>
+    </div>
+
+    <!-- Search visible on mobile below title -->
+    <div class="md:hidden mt-4">
+      <input id="searchTrackMobileAlbum" type="text" placeholder="Buscar canción o artista..." class="w-full px-3 py-2 rounded bg-gray-800/60 text-sm outline-none focus:ring-2 focus:ring-white/20" />
+    </div>
+
+    <section class="bg-gray-800/60 p-4 rounded-lg mt-6 flex flex-col gap-4">
+      <div class="flex items-center gap-4 mb-4">
+        <img id="albumCover" src="https://via.placeholder.com/96" class="w-24 h-24 rounded" />
+        <div class="flex-1">
+          <div id="albumArtist" class="font-medium text-lg">Cargando...</div>
+          <div id="albumTrackCount" class="text-xs opacity-70">0 canciones</div>
+        </div>
+        <div class="hidden md:flex items-center gap-2">
+          <button id="albumPlayAllBtn" class="px-3 py-2 rounded bg-white/6">▶ Reproducir todo</button>
+        </div>
+      </div>
+
+      <div class="overflow-y-auto" style="max-height: 58vh;">
+        <table class="w-full table-auto text-left">
+          <thead class="text-xs text-gray-400 sticky top-0 bg-gray-800/60">
+            <tr>
+              <th class="pl-3 w-12">#</th>
+              <th>Título</th>
+              <th class="text-right pr-3 w-20">Duración</th>
+              <th class="w-14"></th>
+            </tr>
+          </thead>
+          <tbody id="albumTrackList"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
 </main>
 
 <!-- Now Playing Bar -->
@@ -126,7 +175,10 @@
     </div>
 
     <!-- Controls -->
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-2 sm:gap-3">
+      <button id="shuffleBtn" class="p-2 sm:p-2.5 rounded hover:bg-white/5">
+        <i class="fas fa-random"></i>
+      </button>
       <button id="prevBtn" class="p-2 sm:p-2.5 rounded hover:bg-white/5">
         <i class="fas fa-backward"></i>
       </button>
