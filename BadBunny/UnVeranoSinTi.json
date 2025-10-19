@@ -1,32 +1,29 @@
 [
   {
     "id": 1,
-    "title": "El Hilito",
-    "artist": "Romeo Santos",
-    "album": "Formula VOL.2",
+    "title": "Ojitos Lindos",
+    "artist": "Bad Bunny",
+    "album": "Un Verano Sin Ti",
     "duration": 120,
-    "url": "https://d500.d2mefast.net/tb/2/87/romeo_santos_hilito_audio_mp3_16701.mp3",
-    "cover": "assets/portadas/Formula2.jpg"
+    "url": "https://d500.d2mefast.net/tb/3/51/bad_bunny_ojitos_lindos_la_letra_lyrics_ft._bomba_estereo_mp3_19931.mp3",
+    "cover": "assets/portadas/UnVeranoSinTi.jepg"
   },
   {
     "id": 2,
-    "title": "Eres Mia",
-    "artist": "Romeo Santos",
-    "album": "Formula VOL.2",
+    "title": "Me Porto Bonito",
+    "artist": "Bad Bunny",
+    "album": "Un Verano Sin Ti",
     "duration": 210,
-    "url": "https://d500.d2mefast.net/tb/6/f8/romeo_santos_eres_mia_mp3_17018.mp3",
-    "cover": "assets/portadas/Formula2.jpg"
+    "url": "https://d500.d2mefast.net/tb/e/fd/me_porto_bonito_mp3_20018.mp3",
+    "cover": "assets/portadas/UnVeranoSinTi.jepg"
   },
   {
     "id": 3,
-    "title": "Inocente",
-    "artist": "Romeo Santos",
-    "album": "Formula VOL.2",
+    "title": "Neverita",
+    "artist": "Bad Bunny",
+    "album": "Un Verano Sin Ti",
     "duration": 180,
-    "url": "https://d500.d2mefast.net/tb/6/2d/romeo_santos_inocente_mp3_17062.mp3",
-    "cover": "assets/portadas/Formula2.jpg"
+    "url": "https://d337.d2mefast.net/tb/c/10/bad_bunny_neverita_audio_mp3_20057.mp3",
+    "cover": "assets/portadas/UnVeranoSinTi.jepg"
   }
 ]
-
-
-
