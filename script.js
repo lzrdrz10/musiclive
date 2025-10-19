@@ -502,7 +502,7 @@ if (audio) {
   };
 }
 
-/* ===== Buscador global optimizado con debounce y resaltado ===== */
+/* ===== Buscador global optimizado con debounce ===== */
 function debounce(func, wait) {
   var timeout;
   return function(...args) {
@@ -512,23 +512,14 @@ function debounce(func, wait) {
   };
 }
 
-function escapeHtml(unsafe) {
-  if (!unsafe && unsafe !== 0) return "";
-  return String(unsafe)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
-// ===== Filtrado de tracks =====
 function applySearch(term) {
-  term = term || "";
-  if (!term.trim()) {
+  if (!term || term.trim() === "") {
     if (currentView === 'search') {
-      if (albumName) loadAlbum(albumName);
-      else showWelcome();
+      if (albumName) {
+        loadAlbum(albumName);
+      } else {
+        showWelcome();
+      }
     }
     return;
   }
@@ -540,115 +531,51 @@ function applySearch(term) {
   displayedTracks = allTracks.filter(function(t) {
     var title = (t.title || "").toLowerCase();
     var artist = (t.artist || "").toLowerCase();
-    return terms.every(word => title.includes(word) || artist.includes(word));
+    return terms.every(function(word) {
+      return title.includes(word) || artist.includes(word);
+    });
   });
 
   currentView = 'search';
   if (welcomeSection) welcomeSection.classList.remove("hidden");
   if (albumSection) albumSection.classList.add("hidden");
   if (trackCount) trackCount.textContent = displayedTracks.length + " resultados";
-
-  renderTracks(displayedTracks, trackListEl, term);
+  renderTracks(displayedTracks, trackListEl);
 }
 
 var debouncedSearch = debounce(applySearch, 300);
 
-// ===== Renderizar tracks con resaltado opcional =====
-function renderTracks(list, targetEl, highlightTerm) {
-  if (!targetEl) return;
-  targetEl.innerHTML = "";
-
-  list.forEach(function(t) {
-    var tr = document.createElement("tr");
-    var activeCls = (current && current.id === t.id && current.album === t.album) ? "bg-gray-700/60" : "";
-    tr.className = "cursor-pointer hover:bg-gray-700/30 transition-colors duration-150 " + activeCls;
-
-    var isFav = favorites.some(f => f.id === t.id && f.album === t.album);
-    var star = isFav ? "★" : "☆";
-
-    // Resaltar términos
-    function highlight(text) {
-      if (!highlightTerm) return escapeHtml(text);
-      var terms = highlightTerm.split(/\s+/).filter(w => w.length > 0);
-      var escaped = escapeHtml(text);
-      terms.forEach(function(word) {
-        var re = new RegExp("(" + word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ")", "gi");
-        escaped = escaped.replace(re, '<mark class="bg-yellow-300 text-black">$1</mark>');
-      });
-      return escaped;
-    }
-
-    tr.innerHTML = `
-      <td class="pl-3 py-3 align-middle">${t.id}</td>
-      <td>
-        <div class="flex items-center gap-3">
-          <img src="${t.cover}" class="w-10 h-10 rounded" onerror="this.src='https://via.placeholder.com/96'" />
-          <div>
-            <div class="font-medium">${highlight(t.title)}</div>
-            <div class="text-xs opacity-70">${highlight(t.artist)}</div>
-          </div>
-        </div>
-      </td>
-      <td class="text-right pr-3 align-middle">${formatTime(t.duration)}</td>
-      <td class="pr-2 align-middle">
-        <button class="favBtn text-sm p-1 rounded hover:bg-white/5" data-id="${t.id}">${star}</button>
-      </td>
-    `;
-
-    // Click para reproducir
-    tr.onclick = function(e) {
-      if (e.target.classList.contains("favBtn")) return;
-      playTrack(t);
-    };
-
-    // Doble click para pausar/reproducir
-    tr.ondblclick = function() {
-      if (current && current.id === t.id && current.album === t.album && isPlaying) {
-        audio.pause();
-        if (playBtn) playBtn.innerHTML = '<i class="fas fa-play"></i>';
-        isPlaying = false;
-      } else playTrack(t);
-    };
-
-    // Toggle favorito
-    tr.querySelector(".favBtn").addEventListener("click", function() {
-      toggleFavorite(t);
-      renderTracks(displayedTracks, targetEl, highlightTerm);
-    });
-
-    targetEl.appendChild(tr);
-  });
-}
-
-// ===== Configurar inputs del buscador (móvil + desktop) =====
+// ===== Configurar el input del buscador =====
 function setupSearchInput(input) {
   if (!input) return;
 
-  var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  // Evitar que el teclado se cierre automáticamente en móviles
+  input.addEventListener('blur', function(e) {
+    if (!input.dataset.allowBlur) {
+      e.preventDefault();
+      input.focus();
+    }
+  });
 
-  if (isMobile) {
-    input.addEventListener('blur', function(e) {
-      if (!input.dataset.allowBlur) {
-        e.preventDefault();
-        setTimeout(() => input.focus(), 50);
-      }
-    });
-  }
-
+  // Escucha cuando el texto cambia (permite espacios y acentos)
   input.addEventListener('input', function(e) {
     debouncedSearch(e.target.value);
   });
 
+  // Detecta cuando se presiona Enter (permite cerrar teclado)
   input.addEventListener('keydown', function(e) {
     if (e.key === "Enter") {
       e.preventDefault();
       input.dataset.allowBlur = true;
       input.blur(); // cierra teclado en móvil
       debouncedSearch(e.target.value);
-      setTimeout(() => input.dataset.allowBlur = false, 100);
+      setTimeout(function() {
+        input.dataset.allowBlur = false; // resetea
+      }, 100);
     }
   });
 
+  // Soporte para teclados con composición (móviles)
   input.addEventListener('compositionstart', function() {});
   input.addEventListener('compositionend', function(e) {
     debouncedSearch(e.target.value);
@@ -660,6 +587,7 @@ setupSearchInput(searchInput);
 setupSearchInput(searchInputMobile);
 setupSearchInput(searchInputAlbum);
 setupSearchInput(searchInputMobileAlbum);
+
 
 /* ===== Play All ===== */
 if (playAllBtn) {
