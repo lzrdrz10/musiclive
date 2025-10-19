@@ -502,16 +502,7 @@ if (audio) {
   };
 }
 
-/* ===== Buscador global optimizado con debounce ===== */
-function debounce(func, wait) {
-  var timeout;
-  return function(...args) {
-    var context = this;
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func.apply(context, args), wait);
-  };
-}
-
+/* ===== Buscador global ===== */
 function applySearch(term) {
   if (!term || term.trim() === "") {
     if (currentView === 'search') {
@@ -543,39 +534,26 @@ function applySearch(term) {
   renderTracks(displayedTracks, trackListEl);
 }
 
-var debouncedSearch = debounce(applySearch, 300);
-
-// ===== Configurar el input del buscador =====
+/* ===== Configurar el input del buscador ===== */
 function setupSearchInput(input) {
   if (!input) return;
 
-  // Escucha cuando el texto cambia (permite espacios y acentos)
-  input.addEventListener('input', function(e) {
-    console.log("Input value:", e.target.value); // Depuración
-    debouncedSearch(e.target.value);
-  });
-
-  // Detecta cuando se presiona Enter (sin cerrar teclado inmediatamente)
+  // Detecta cuando se presiona Enter para realizar la búsqueda
   input.addEventListener('keydown', function(e) {
     if (e.key === "Enter") {
-      e.preventDefault();
-      console.log("Enter pressed, value:", e.target.value); // Depuración
-      debouncedSearch(e.target.value);
-      // Mantener el foco en el input para evitar cierre del teclado
+      e.preventDefault(); // Evita comportamiento por defecto (como enviar formularios)
+      applySearch(e.target.value); // Realiza la búsqueda
+      input.blur(); // Cierra el teclado en móviles
     }
   });
 
-  // Soporte para teclados con composición (móviles)
-  input.addEventListener('compositionstart', function() {
-    console.log("Composition started"); // Depuración
-  });
+  // Soporte para teclados con composición (móviles, por ejemplo, para idiomas con caracteres especiales)
   input.addEventListener('compositionend', function(e) {
-    console.log("Composition ended, value:", e.target.value); // Depuración
-    debouncedSearch(e.target.value);
+    // No realizar búsqueda automática, solo permitir composición
   });
 }
 
-// ===== Inicializar todos los inputs =====
+/* ===== Inicializar todos los inputs ===== */
 setupSearchInput(searchInput);
 setupSearchInput(searchInputMobile);
 setupSearchInput(searchInputAlbum);
