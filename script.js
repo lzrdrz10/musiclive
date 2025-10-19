@@ -1,4 +1,3 @@
-/* ========= Variables (uso var según prefieres) ========= */
 var urlParams = new URLSearchParams(window.location.search);
 var albumName = urlParams.get('album');
 
@@ -10,7 +9,6 @@ var albumTrackListEl = document.getElementById("albumTrackList");
 var albumTitle = document.getElementById("albumTitle");
 var albumArtist = document.getElementById("albumArtist");
 var albumCover = document.getElementById("albumCover");
-var trackCount = document.getElementById("trackCount");
 var albumTrackCount = document.getElementById("albumTrackCount");
 var playBtn = document.getElementById("playPauseBtn");
 var currentCover = document.getElementById("currentCover");
@@ -26,29 +24,27 @@ var searchInputAlbum = document.getElementById("searchTrackAlbum");
 var searchInputMobileAlbum = document.getElementById("searchTrackMobileAlbum");
 var favCountEl = document.getElementById("favCount");
 var favNav = document.getElementById("favNav");
-var playAllBtn = document.getElementById("playAllBtn");
-var albumPlayAllBtn = document.getElementById("albumPlayAllBtn");
 var hamburger = document.getElementById("hamburger");
 var mobileSidebarContainer = document.getElementById("mobileSidebarContainer");
 var sidebar = document.getElementById("sidebar");
 var closeSidebarBtn = document.getElementById("closeSidebarBtn");
 var shuffleBtn = document.getElementById("shuffleBtn");
 var sidebarNav = document.getElementById("sidebarNav");
+var footerFavBtn = document.getElementById("footerFavBtn");
 
 var tracks = [];
 var displayedTracks = [];
 var current = null;
 var isPlaying = false;
 var isShuffling = false;
-var favorites = []; // array de objetos track
-var currentView = 'welcome'; // 'welcome', 'album', 'favoritos', 'search'
+var favorites = [];
+var currentView = 'welcome';
 var previousView = null;
 var allTracks = [];
 var albumsTracks = {};
-var artists = {}; // { artistName: [{name, artistFolder, coverFile, artist}] }
+var artists = {};
 audio.volume = 0.8;
 
-/* ===== utilidades ===== */
 function formatTime(sec) {
   if (isNaN(sec)) return "0:00";
   var m = Math.floor(sec / 60);
@@ -76,9 +72,13 @@ function updateFavUI() {
   if (favCountEl) favCountEl.textContent = favorites.length;
   var mFavCount = document.getElementById("mFavCount");
   if (mFavCount) mFavCount.textContent = favorites.length;
+  if (footerFavBtn && current) {
+    var isFav = favorites.some(function(f){ return f.id === current.id && f.album === current.album; });
+    footerFavBtn.textContent = isFav ? "★" : "☆";
+    footerFavBtn.classList.toggle("active", isFav);
+  }
 }
 
-/* ===== Shuffle utilities ===== */
 function loadShuffleState() {
   try {
     isShuffling = JSON.parse(localStorage.getItem("dp_shuffle") || "false");
@@ -110,7 +110,6 @@ function getRandomTrack() {
   return displayedTracks[idx];
 }
 
-/* ===== Cargar todos los álbumes y agrupar por artista ===== */
 async function loadAllAlbums() {
   var albums = [
     {name: "Formula2", artistFolder: "RomeoSantos", coverFile: "Formula2.JPEG", artist: "Romeo Santos"},
@@ -171,7 +170,6 @@ async function loadAllAlbums() {
   renderSidebar();
 }
 
-/* ===== Renderizar sidebar con acordeones ===== */
 function renderSidebar() {
   if (!sidebarNav) return;
   var navHtml = '\
@@ -218,12 +216,10 @@ function renderSidebar() {
   });
 }
 
-/* ===== Mostrar sección de bienvenida ===== */
 function showWelcome() {
   currentView = 'welcome';
   if (welcomeSection) welcomeSection.classList.remove("hidden");
   if (albumSection) albumSection.classList.add("hidden");
-  if (trackCount) trackCount.textContent = allTracks.length + " canciones";
   displayedTracks = allTracks.slice();
   renderTracks(displayedTracks, trackListEl);
 
@@ -233,7 +229,6 @@ function showWelcome() {
   if (searchInputMobileAlbum) searchInputMobileAlbum.value = "";
 }
 
-/* ===== Cargar álbum ===== */
 function loadAlbum(name) {
   if (!name || !albumsTracks[name]) {
     if (albumTitle) albumTitle.textContent = "Álbum no encontrado";
@@ -268,36 +263,28 @@ function loadAlbum(name) {
   if (searchInputMobileAlbum) searchInputMobileAlbum.value = "";
 }
 
-/* ===== Renderizar lista de pistas ===== */
 function renderTracks(list, targetEl) {
   if (!targetEl) return;
   targetEl.innerHTML = "";
   list.forEach(function(t) {
     var tr = document.createElement("tr");
-    var activeCls = (current && current.id === t.id && current.album === t.album) ? "bg-gray-700/60" : "";
+    var activeCls = (current && current.id === t.id && current.album === t.album) ? "active-track" : "";
     tr.className = "cursor-pointer hover:bg-gray-700/30 transition-colors duration-150 " + activeCls;
 
-    var isFav = favorites.some(function(f){ return f.id === t.id && f.album === t.album; });
-    var star = isFav ? "★" : "☆";
-
     tr.innerHTML = '\
-      <td class="pl-3 py-3 align-middle">' + t.id + '</td>\
+      <td class="pl-4 py-3 align-middle">' + t.id + '</td>\
       <td>\
-        <div class="flex items-center gap-3">\
-          <img src="' + t.cover + '" class="w-10 h-10 rounded" onerror="this.src=\'https://via.placeholder.com/96\'" />\
-          <div>\
-            <div class="font-medium">' + escapeHtml(t.title) + '</div>\
-            <div class="text-xs opacity-70">' + escapeHtml(t.artist) + '</div>\
+        <div class="track-info">\
+          <img src="' + t.cover + '" class="track-cover" onerror="this.src=\'https://via.placeholder.com/96\'" />\
+          <div class="track-details">\
+            <div class="track-title" title="' + escapeHtml(t.title) + '">' + escapeHtml(t.title) + '</div>\
+            <div class="track-artist">' + escapeHtml(t.artist) + '</div>\
           </div>\
         </div>\
       </td>\
-      <td class="text-right pr-3 align-middle">' + formatTime(t.duration) + '</td>\
-      <td class="pr-2 align-middle">\
-        <button class="favBtn text-sm p-1 rounded hover:bg-white/5" data-id="' + t.id + '">' + star + '</button>\
-      </td>';
+      <td class="text-right pr-4 align-middle">' + formatTime(t.duration) + '</td>';
 
     tr.onclick = function(e) {
-      if (e.target.classList.contains("favBtn")) return;
       playTrack(t);
     };
 
@@ -311,24 +298,20 @@ function renderTracks(list, targetEl) {
       }
     };
 
-    tr.addEventListener("click", function(e){
-      if (e.target.classList.contains("favBtn")) {
-        toggleFavorite(t);
-        renderTracks(displayedTracks, targetEl);
-      }
-    });
-
     targetEl.appendChild(tr);
   });
 }
 
-/* ===== Favoritos ===== */
 function toggleFavorite(track) {
+  console.log("Toggling favorite for track:", track);
+  console.log("Current favorites:", favorites);
   var idx = favorites.findIndex(function(f){ return f.id === track.id && f.album === track.album; });
   if (idx === -1) {
     favorites.push({...track});
+    console.log("Added to favorites:", track);
   } else {
     favorites.splice(idx, 1);
+    console.log("Removed from favorites:", track);
   }
   saveFavorites();
   if (currentView === 'favoritos') showFavorites();
@@ -336,12 +319,10 @@ function toggleFavorite(track) {
   else if (currentView === 'album') loadAlbum(albumName);
 }
 
-/* ===== Mostrar favoritos ===== */
 function showFavorites() {
   currentView = 'favoritos';
   if (welcomeSection) welcomeSection.classList.remove("hidden");
   if (albumSection) albumSection.classList.add("hidden");
-  if (trackCount) trackCount.textContent = favorites.length + " canciones";
   displayedTracks = favorites.slice();
   renderTracks(displayedTracks, trackListEl);
 
@@ -351,7 +332,6 @@ function showFavorites() {
   if (searchInputMobileAlbum) searchInputMobileAlbum.value = "";
 }
 
-/* ===== Cargar una canción en el reproductor ===== */
 function loadTrack(track) {
   if (!track) return;
   current = track;
@@ -372,9 +352,9 @@ function loadTrack(track) {
   } else if (currentView === 'album') {
     renderTracks(displayedTracks, albumTrackListEl);
   }
+  updateFavUI();
 }
 
-/* ===== Reproducir una pista ===== */
 function playTrack(track) {
   if (!track) return;
   if (!current || current.id !== track.id || current.album !== track.album) loadTrack(track);
@@ -388,7 +368,6 @@ function playTrack(track) {
   });
 }
 
-/* ===== Botones Play/Pause/Next/Prev/Shuffle ===== */
 if (playBtn) {
   playBtn.onclick = function() {
     if (isPlaying) {
@@ -449,7 +428,23 @@ if (shuffleBtn) {
   };
 }
 
-/* ===== Actualizar barra de progreso y hacerla interactiva ===== */
+if (footerFavBtn) {
+  footerFavBtn.onclick = function() {
+    console.log("Favorites button clicked, current track:", current);
+    if (current) {
+      toggleFavorite(current);
+      updateFavUI();
+      if (currentView === 'welcome' || currentView === 'favoritos' || currentView === 'search') {
+        renderTracks(displayedTracks, trackListEl);
+      } else if (currentView === 'album') {
+        renderTracks(displayedTracks, albumTrackListEl);
+      }
+    } else {
+      console.warn("No current track selected");
+    }
+  };
+}
+
 if (audio) {
   audio.ontimeupdate = function() {
     var progress = (audio.currentTime / audio.duration) * 100;
@@ -495,14 +490,12 @@ if (progressBar) {
   progressBar.addEventListener("touchend", function() {});
 }
 
-/* ===== Cuando termina la canción ===== */
 if (audio) {
   audio.onended = function() {
     if (document.getElementById("nextBtn")) document.getElementById("nextBtn").click();
   };
 }
 
-/* ===== Buscador global ===== */
 function applySearch(term) {
   if (!term || term.trim() === "") {
     if (currentView === 'search') {
@@ -530,66 +523,34 @@ function applySearch(term) {
   currentView = 'search';
   if (welcomeSection) welcomeSection.classList.remove("hidden");
   if (albumSection) albumSection.classList.add("hidden");
-  if (trackCount) trackCount.textContent = displayedTracks.length + " resultados";
   renderTracks(displayedTracks, trackListEl);
 }
 
-/* ===== Configurar el input del buscador ===== */
 function setupSearchInput(input) {
   if (!input) return;
 
-  // Detecta cuando se presiona Enter para realizar la búsqueda
   input.addEventListener('keydown', function(e) {
     if (e.key === "Enter") {
-      e.preventDefault(); // Evita comportamiento por defecto (como enviar formularios)
-      applySearch(e.target.value); // Realiza la búsqueda
-      input.blur(); // Cierra el teclado en móviles
+      e.preventDefault();
+      applySearch(e.target.value);
+      input.blur();
     }
   });
 
-  // Soporte para teclados con composición (móviles, por ejemplo, para idiomas con caracteres especiales)
-  input.addEventListener('compositionend', function(e) {
-    // No realizar búsqueda automática, solo permitir composición
-  });
+  input.addEventListener('compositionend', function(e) {});
 }
 
-/* ===== Inicializar todos los inputs ===== */
 setupSearchInput(searchInput);
 setupSearchInput(searchInputMobile);
 setupSearchInput(searchInputAlbum);
 setupSearchInput(searchInputMobileAlbum);
 
-/* ===== Play All ===== */
-if (playAllBtn) {
-  playAllBtn.onclick = function(){
-    if (!displayedTracks.length) return;
-    if (isShuffling) {
-      playTrack(getRandomTrack());
-    } else {
-      playTrack(displayedTracks[0]);
-    }
-  };
-}
-
-if (albumPlayAllBtn) {
-  albumPlayAllBtn.onclick = function(){
-    if (!displayedTracks.length) return;
-    if (isShuffling) {
-      playTrack(getRandomTrack());
-    } else {
-      playTrack(displayedTracks[0]);
-    }
-  };
-}
-
-/* ===== Favoritos nav click ===== */
 if (favNav) {
   favNav.onclick = function() {
     showFavorites();
   };
 }
 
-/* ===== Inicio view ===== */
 var inicioNavs = document.querySelectorAll('[data-view="welcome"]');
 inicioNavs.forEach(function(n){ 
   n.onclick = function(){ 
@@ -597,7 +558,6 @@ inicioNavs.forEach(function(n){
   };
 });
 
-/* ===== Guardar último track cuando se reproduce ===== */
 if (audio) {
   audio.onplay = function() {
     if (current) {
@@ -608,7 +568,6 @@ if (audio) {
   };
 }
 
-/* ===== Mobile sidebar ===== */
 if (hamburger) {
   hamburger.onclick = function() {
     var navHtml = '\
@@ -665,21 +624,18 @@ if (hamburger) {
   };
 }
 
-/* ===== Small UX: close sidebar button in mobile ===== */
 if (closeSidebarBtn) {
   closeSidebarBtn.onclick = function(){ 
     if (sidebar) sidebar.classList.add("hidden"); 
   };
 }
 
-/* ===== Escape key cerrar mobile overlay ===== */
 document.addEventListener("keydown", function(e){
   if (e.key === "Escape" && mobileSidebarContainer) {
     mobileSidebarContainer.innerHTML = "";
   }
 });
 
-/* ===== Escape HTML helper ===== */
 function escapeHtml(unsafe) {
   if (!unsafe && unsafe !== 0) return "";
   return String(unsafe)
@@ -690,7 +646,6 @@ function escapeHtml(unsafe) {
     .replace(/'/g, "&#039;");
 }
 
-/* ===== Inicialización ===== */
 (async function init(){
   loadFavorites();
   loadShuffleState();
@@ -701,5 +656,8 @@ function escapeHtml(unsafe) {
     loadAlbum(albumName);
   } else {
     showWelcome();
+    if (allTracks.length > 0 && !current) {
+      loadTrack(allTracks[0]);
+    }
   }
 })();
