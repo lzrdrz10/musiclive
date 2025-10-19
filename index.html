@@ -3,51 +3,88 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>DarkPlayer</title>
+<title>DarkPlayer 2.0</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-body { background-color: #111827; color: #f3f4f6; font-family: sans-serif; }
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-thumb { background-color: #4b5563; border-radius: 3px; }
+  body { background-color: #0b1220; color: #e6eef8; font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+  ::-webkit-scrollbar { width: 6px; height:6px; }
+  ::-webkit-scrollbar-thumb { background-color: #374151; border-radius: 3px; }
+  #progressFill { transition: width 0.15s linear; }
+  #currentCover { transition: opacity 0.25s ease-in-out; }
+  /* Overlay for mobile sidebar */
+  .overlay { background: rgba(2,6,23,0.6); backdrop-filter: blur(4px); }
 </style>
 </head>
-<body class="min-h-screen flex">
+<body class="min-h-screen">
 
-<!-- Sidebar -->
-<aside class="w-72 bg-gradient-to-b from-gray-800 via-gray-900 to-black p-5 flex flex-col gap-6">
-  <div class="text-2xl font-black">DarkPlayer</div>
+<!-- Sidebar (desktop) -->
+<aside id="sidebar" class="hidden md:flex fixed left-0 top-0 bottom-0 w-72 bg-gradient-to-b from-gray-900 to-black p-5 flex-col gap-6 z-40 shadow-xl">
+  <div class="flex items-center justify-between">
+    <div class="text-2xl font-black">DarkPlayer</div>
+    <button id="closeSidebarBtn" class="md:hidden p-2 rounded hover:bg-white/5">✕</button>
+  </div>
+
   <nav class="flex-1">
     <ul class="space-y-3 text-sm">
-      <li class="flex items-center gap-3 hover:text-white cursor-pointer">🏠 Inicio</li>
+      <li class="flex items-center gap-3 hover:text-white cursor-pointer" data-view="inicio">🏠 Inicio</li>
       <li><a href="?album=Formula2" class="hover:text-white">🎵 Romeo Santos - Fórmula Vol.2</a></li>
       <li><a href="?album=UnVeranoSinTi" class="hover:text-white">🌴 Bad Bunny - Un Verano Sin Ti</a></li>
+      <li class="pt-4 border-t border-gray-800 text-xs opacity-80">Listas</li>
+      <li class="flex items-center gap-3 hover:text-white cursor-pointer" id="favNav">
+        ⭐ Favoritos <span id="favCount" class="ml-2 text-xs opacity-70">0</span>
+      </li>
     </ul>
   </nav>
+
   <div class="text-xs opacity-70">© Tu estudio · Demo</div>
 </aside>
 
-<!-- Main -->
-<main class="flex-1 p-8 flex flex-col gap-6">
-  <header class="flex items-center justify-between">
-    <h1 class="text-3xl font-extrabold" id="albumTitle">Cargando...</h1>
-  </header>
+<!-- Mobile sidebar overlay container -->
+<div id="mobileSidebarContainer" class="md:hidden"></div>
 
-  <section class="bg-gray-800 p-4 rounded-lg flex flex-col">
+<!-- Top bar (mobile) -->
+<header class="md:hidden flex items-center justify-between px-4 py-3 bg-gradient-to-r from-black via-gray-900 to-gray-800 sticky top-0 z-30">
+  <div class="flex items-center gap-3">
+    <button id="hamburger" class="p-2 rounded hover:bg-white/5">☰</button>
+    <div class="font-semibold text-lg">DarkPlayer</div>
+  </div>
+  <div class="text-sm opacity-70">Demo</div>
+</header>
+
+<!-- Main area -->
+<main class="md:ml-72 p-6 pb-28">
+  <div class="flex items-center justify-between">
+    <h1 id="albumTitle" class="text-3xl font-extrabold">Cargando...</h1>
+    <div class="hidden md:flex items-center gap-3">
+      <input id="searchTrack" type="text" placeholder="Buscar canción o artista..." class="px-3 py-2 rounded bg-gray-800/60 text-sm outline-none focus:ring-2 focus:ring-white/20" />
+    </div>
+  </div>
+
+  <!-- Search visible on mobile below title -->
+  <div class="md:hidden mt-4">
+    <input id="searchTrackMobile" type="text" placeholder="Buscar canción o artista..." class="w-full px-3 py-2 rounded bg-gray-800/60 text-sm outline-none focus:ring-2 focus:ring-white/20" />
+  </div>
+
+  <section class="bg-gray-800/60 p-4 rounded-lg mt-6 flex flex-col gap-4">
     <div class="flex items-center gap-4 mb-4">
       <img id="albumCover" src="https://via.placeholder.com/96" class="w-24 h-24 rounded" />
-      <div>
-        <div id="albumArtist" class="font-medium">Cargando...</div>
+      <div class="flex-1">
+        <div id="albumArtist" class="font-medium text-lg">Cargando...</div>
         <div id="trackCount" class="text-xs opacity-70">0 canciones</div>
+      </div>
+      <div class="hidden md:flex items-center gap-2">
+        <button id="playAllBtn" class="px-3 py-2 rounded bg-white/6">▶ Reproducir todo</button>
       </div>
     </div>
 
-    <div class="overflow-y-auto" style="max-height: 400px;">
+    <div class="overflow-y-auto" style="max-height: 58vh;">
       <table class="w-full table-auto text-left">
-        <thead class="text-xs text-gray-400">
+        <thead class="text-xs text-gray-400 sticky top-0 bg-gray-800/60">
           <tr>
-            <th class="pl-3">#</th>
+            <th class="pl-3 w-12">#</th>
             <th>Título</th>
-            <th class="text-right">Duración</th>
+            <th class="text-right pr-3 w-20">Duración</th>
+            <th class="w-14"></th>
           </tr>
         </thead>
         <tbody id="trackList"></tbody>
@@ -57,29 +94,29 @@ body { background-color: #111827; color: #f3f4f6; font-family: sans-serif; }
 </main>
 
 <!-- Now Playing Bar -->
-<footer class="fixed bottom-0 left-72 right-0 bg-gradient-to-r from-black via-gray-900 to-gray-800 p-3">
+<footer class="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-black via-gray-900 to-gray-800 p-3 border-t border-gray-700/30 z-50">
   <div class="max-w-[1200px] mx-auto flex items-center justify-between gap-4">
-    <div class="flex items-center gap-3 w-1/3">
-      <img id="currentCover" src="https://via.placeholder.com/64" class="w-16 h-16 rounded" />
-      <div>
-        <div id="currentTitle" class="font-semibold">Sin reproducción</div>
-        <div id="currentArtist" class="text-xs opacity-70">Desconocido</div>
+    <div class="flex items-center gap-3 w-1/3 min-w-0">
+      <img id="currentCover" src="https://via.placeholder.com/64" class="w-14 h-14 rounded" />
+      <div class="min-w-0">
+        <div id="currentTitle" class="font-semibold truncate">Sin reproducción</div>
+        <div id="currentArtist" class="text-xs opacity-70 truncate">Desconocido</div>
       </div>
     </div>
 
     <div class="flex flex-col items-center gap-2 w-1/3">
       <div class="flex items-center gap-6">
         <button id="prevBtn" class="p-2 rounded hover:bg-white/5">⏮</button>
-        <button id="playPauseBtn" class="p-3 rounded-full bg-white/5">▶</button>
+        <button id="playPauseBtn" class="p-3 rounded-full bg-white/6">▶</button>
         <button id="nextBtn" class="p-2 rounded hover:bg-white/5">⏭</button>
       </div>
 
       <div class="w-full flex items-center gap-3">
-        <div id="currentTime" class="text-xs opacity-60">0:00</div>
+        <div id="currentTime" class="text-xs opacity-60 w-10">0:00</div>
         <div id="progressBar" class="relative h-2 bg-gray-700 rounded flex-1 cursor-pointer">
           <div id="progressFill" class="absolute left-0 top-0 bottom-0 bg-white/60 rounded" style="width: 0%;"></div>
         </div>
-        <div id="totalTime" class="text-xs opacity-60">0:00</div>
+        <div id="totalTime" class="text-xs opacity-60 w-10 text-right">0:00</div>
       </div>
     </div>
 
@@ -92,36 +129,68 @@ body { background-color: #111827; color: #f3f4f6; font-family: sans-serif; }
 </footer>
 
 <script>
-const urlParams = new URLSearchParams(window.location.search);
-const albumName = urlParams.get('album'); 
+/* ========= Variables (uso var según prefieres) ========= */
+var urlParams = new URLSearchParams(window.location.search);
+var albumName = urlParams.get('album');
 
-const audio = document.getElementById("audio");
-const trackList = document.getElementById("trackList");
-const albumTitle = document.getElementById("albumTitle");
-const albumArtist = document.getElementById("albumArtist");
-const albumCover = document.getElementById("albumCover");
-const trackCount = document.getElementById("trackCount");
-const playBtn = document.getElementById("playPauseBtn");
-const currentCover = document.getElementById("currentCover");
-const currentTitle = document.getElementById("currentTitle");
-const currentArtist = document.getElementById("currentArtist");
-const progressFill = document.getElementById("progressFill");
-const currentTimeLabel = document.getElementById("currentTime");
-const totalTimeLabel = document.getElementById("totalTime");
-const volumeControl = document.getElementById("volumeControl");
+var audio = document.getElementById("audio");
+var trackListEl = document.getElementById("trackList");
+var albumTitle = document.getElementById("albumTitle");
+var albumArtist = document.getElementById("albumArtist");
+var albumCover = document.getElementById("albumCover");
+var trackCount = document.getElementById("trackCount");
+var playBtn = document.getElementById("playPauseBtn");
+var currentCover = document.getElementById("currentCover");
+var currentTitle = document.getElementById("currentTitle");
+var currentArtist = document.getElementById("currentArtist");
+var progressFill = document.getElementById("progressFill");
+var currentTimeLabel = document.getElementById("currentTime");
+var totalTimeLabel = document.getElementById("totalTime");
+var volumeControl = document.getElementById("volumeControl");
+var searchInput = document.getElementById("searchTrack");
+var searchInputMobile = document.getElementById("searchTrackMobile");
+var favCountEl = document.getElementById("favCount");
+var favNav = document.getElementById("favNav");
+var playAllBtn = document.getElementById("playAllBtn");
+var hamburger = document.getElementById("hamburger");
+var mobileSidebarContainer = document.getElementById("mobileSidebarContainer");
+var sidebar = document.getElementById("sidebar");
+var closeSidebarBtn = document.getElementById("closeSidebarBtn");
 
-let tracks = [];
-let current = null;
-let isPlaying = false;
+var tracks = [];
+var displayedTracks = [];
+var current = null;
+var isPlaying = false;
+var favorites = []; // array de objetos track
+var currentView = 'album'; // 'album' o 'favoritos'
 audio.volume = 0.8;
 
+/* ===== utilidades ===== */
 function formatTime(sec) {
   if (isNaN(sec)) return "0:00";
-  const m = Math.floor(sec / 60);
-  const s = Math.floor(sec % 60).toString().padStart(2, "0");
-  return `${m}:${s}`;
+  var m = Math.floor(sec / 60);
+  var s = Math.floor(sec % 60).toString().padStart(2, "0");
+  return m + ":" + s;
 }
 
+function saveFavorites() {
+  localStorage.setItem("dp_favorites", JSON.stringify(favorites || []));
+  updateFavUI();
+}
+
+function loadFavorites() {
+  try {
+    var f = JSON.parse(localStorage.getItem("dp_favorites") || "[]");
+    favorites = Array.isArray(f) ? f : [];
+  } catch (e) { favorites = []; }
+  updateFavUI();
+}
+
+function updateFavUI() {
+  favCountEl.textContent = favorites.length;
+}
+
+/* ===== Cargar álbum (desde GitHub raw JSON) ===== */
 async function loadAlbum(name) {
   if (!name) {
     albumTitle.textContent = "Selecciona un álbum";
@@ -129,84 +198,205 @@ async function loadAlbum(name) {
   }
 
   try {
-    let artistFolder = "";
-    let coverFile = "default.jpg";
+    var artistFolder = "";
+    var coverFile = "default.jpg";
     if (name === "Formula2") {
       artistFolder = "RomeoSantos";
-      coverFile = "Formula2.JPEG"; // usa .JPEG si así está en GitHub
+      coverFile = "Formula2.JPEG";
     } else if (name === "UnVeranoSinTi") {
       artistFolder = "BadBunny";
       coverFile = "UnVeranoSinTi.jpeg";
     } else {
-      throw new Error(`Álbum desconocido: ${name}`);
+      // si no está en la lista, intenta usar nombre como folder
+      artistFolder = name;
+      coverFile = name + ".jpeg";
     }
 
-    // Cargar JSON desde GitHub
-    const jsonUrl = `https://raw.githubusercontent.com/lzrdrz10/musiclive/main/${artistFolder}/${name}.json`;
-    const res = await fetch(jsonUrl);
-    if (!res.ok) throw new Error(`Error al cargar JSON: ${res.status}`);
-    const data = await res.json();
+    var jsonUrl = "https://raw.githubusercontent.com/lzrdrz10/musiclive/main/" + artistFolder + "/" + name + ".json";
+    var res = await fetch(jsonUrl);
+    if (!res.ok) throw new Error("Error al cargar JSON: " + res.status);
+    var data = await res.json();
 
     if (!Array.isArray(data) || data.length === 0) throw new Error("JSON vacío o inválido");
 
     albumTitle.textContent = data[0].album || name;
     albumArtist.textContent = data[0].artist || "Desconocido";
 
-    const coverUrl = `https://raw.githubusercontent.com/lzrdrz10/musiclive/main/portadas/${coverFile}`;
+    var coverUrl = "https://raw.githubusercontent.com/lzrdrz10/musiclive/main/portadas/" + coverFile;
     albumCover.src = coverUrl;
 
-    tracks = data.map(t => ({ ...t, cover: coverUrl }));
+    // asignar cover y normalizar objetos
+    tracks = data.map(function(t, idx) {
+      return {
+        id: t.id || idx + 1,
+        title: t.title || ("Pista " + (idx + 1)),
+        artist: t.artist || data[0].artist || "Desconocido",
+        url: t.url || "",
+        duration: t.duration || 0,
+        album: t.album || data[0].album,
+        cover: coverUrl
+      };
+    });
+
     trackCount.textContent = tracks.length + " canciones";
-    loadTrack(tracks[0]);
-    renderTracks(tracks);
+    displayedTracks = tracks.slice();
+
+    // si hay track guardado + mismo álbum, reanudar
+    var lastAlbum = localStorage.getItem("dp_lastAlbum");
+    var lastTrack = JSON.parse(localStorage.getItem("dp_lastTrack") || "null");
+
+    renderTracks(displayedTracks);
+
+    if (lastAlbum && !albumName && lastAlbum === name && lastTrack && lastTrack.id) {
+      // intentar cargar el track guardado
+      var saved = tracks.find(function(x){ return x.id === lastTrack.id; });
+      if (saved) {
+        loadTrack(saved);
+        // no reproducir automáticamente, solo asignar estado
+      } else {
+        loadTrack(tracks[0]);
+      }
+    } else {
+      loadTrack(tracks[0]);
+    }
+
+    // guardar último álbum
+    localStorage.setItem("dp_lastAlbum", name);
+
   } catch (e) {
     console.error(e);
     albumTitle.textContent = "Error al cargar el álbum";
     albumArtist.textContent = "No disponible";
     albumCover.src = "https://via.placeholder.com/96";
+    tracks = [];
+    displayedTracks = [];
+    renderTracks([]);
   }
 }
 
-function loadTrack(track) {
-  current = track;
-  audio.src = track.url;
-  currentCover.src = track.cover || "https://via.placeholder.com/64";
-  currentTitle.textContent = track.title || "Sin título";
-  currentArtist.textContent = track.artist || "Desconocido";
-  totalTimeLabel.textContent = formatTime(track.duration || 0);
-  renderTracks(tracks);
-}
-
+/* ===== Renderizar lista de pistas ===== */
 function renderTracks(list) {
-  trackList.innerHTML = "";
-  list.forEach(t => {
-    const tr = document.createElement("tr");
-    tr.className = `cursor-pointer hover:bg-gray-700/30 ${t.id === current?.id ? "bg-gray-700/60" : ""}`;
-    tr.innerHTML = `
-      <td class="pl-3 py-3">${t.id}</td>
-      <td>
-        <div class="flex items-center gap-3">
-          <img src="${t.cover}" class="w-10 h-10 rounded" />
-          <div>
-            <div class="font-medium">${t.title}</div>
-            <div class="text-xs opacity-70">${t.artist}</div>
-          </div>
-        </div>
-      </td>
-      <td class="text-right pr-3">${formatTime(t.duration)}</td>`;
-    tr.onclick = () => playTrack(t);
-    trackList.appendChild(tr);
+  // actual view header search inputs
+  trackListEl.innerHTML = "";
+  list.forEach(function(t) {
+    var tr = document.createElement("tr");
+    var activeCls = (current && current.id === t.id) ? "bg-gray-700/60" : "";
+    tr.className = "cursor-pointer hover:bg-gray-700/30 transition-colors duration-150 " + activeCls;
+
+    // verificar si está en favoritos
+    var isFav = favorites.some(function(f){ return f.id === t.id; });
+    var star = isFav ? "★" : "☆";
+
+    tr.innerHTML = '\
+      <td class="pl-3 py-3 align-middle">' + t.id + '</td>\
+      <td>\
+        <div class="flex items-center gap-3">\
+          <img src="' + t.cover + '" class="w-10 h-10 rounded" />\
+          <div>\
+            <div class="font-medium">' + escapeHtml(t.title) + '</div>\
+            <div class="text-xs opacity-70">' + escapeHtml(t.artist) + '</div>\
+          </div>\
+        </div>\
+      </td>\
+      <td class="text-right pr-3 align-middle">' + formatTime(t.duration) + '</td>\
+      <td class="pr-2 align-middle">\
+        <button class="favBtn text-sm p-1 rounded hover:bg-white/5" data-id="' + t.id + '">' + star + '</button>\
+      </td>';
+
+    tr.onclick = function(e) {
+      // evitar que el click en favBtn dispare la reproducción
+      if (e.target && e.target.classList && e.target.classList.contains("favBtn")) return;
+      playTrack(t);
+    };
+
+    tr.ondblclick = function() {
+      // doble clic pausa/reproduce
+      if (current && current.id === t.id && isPlaying) {
+        audio.pause();
+        playBtn.textContent = "▶";
+        isPlaying = false;
+      } else {
+        playTrack(t);
+      }
+    };
+
+    // manejar click en favorito
+    tr.addEventListener("click", function(e){
+      if (e.target && e.target.classList && e.target.classList.contains("favBtn")) {
+        toggleFavorite(t);
+        // re-render current displayed list to update stars
+        renderTracks(displayedTracks);
+      }
+    });
+
+    trackListEl.appendChild(tr);
   });
 }
 
-function playTrack(track) {
-  if (!current || current.id !== track.id) loadTrack(track);
-  audio.play();
-  isPlaying = true;
-  playBtn.textContent = "⏸";
+/* ===== Favoritos ===== */
+function toggleFavorite(track) {
+  var idx = favorites.findIndex(function(f){ return f.id === track.id; });
+  if (idx === -1) {
+    // agregar copia ligera
+    favorites.push({
+      id: track.id,
+      title: track.title,
+      artist: track.artist,
+      url: track.url,
+      duration: track.duration,
+      cover: track.cover,
+      album: track.album
+    });
+  } else {
+    favorites.splice(idx, 1);
+  }
+  saveFavorites();
+  // si estábamos viendo favoritos, volver a listarlos
+  if (currentView === 'favoritos') showFavorites();
 }
 
-playBtn.onclick = () => {
+function showFavorites() {
+  currentView = 'favoritos';
+  albumTitle.textContent = "Favoritos";
+  albumArtist.textContent = "Tus canciones guardadas";
+  albumCover.src = "https://via.placeholder.com/96?text=❤";
+  displayedTracks = favorites.slice();
+  trackCount.textContent = displayedTracks.length + " canciones";
+  renderTracks(displayedTracks);
+}
+
+/* ===== Cargar una canción en el reproductor ===== */
+function loadTrack(track) {
+  current = track;
+  audio.src = track.url;
+  currentCover.style.opacity = 0;
+  setTimeout(function(){
+    currentCover.src = track.cover || "https://via.placeholder.com/64";
+    currentCover.style.opacity = 1;
+  }, 180);
+  currentTitle.textContent = track.title || "Sin título";
+  currentArtist.textContent = track.artist || "Desconocido";
+  totalTimeLabel.textContent = formatTime(track.duration || 0);
+  // guardar último track y album
+  localStorage.setItem("dp_lastTrack", JSON.stringify({ id: track.id }));
+  renderTracks(displayedTracks);
+}
+
+/* ===== Reproducir una pista (y cambiar estado del botón) ===== */
+function playTrack(track) {
+  if (!current || current.id !== track.id) loadTrack(track);
+  audio.play().then(function(){
+    isPlaying = true;
+    playBtn.textContent = "⏸";
+  }).catch(function(e){
+    // Autoplay bloqueado: solo cambiar icono y estado, usuario debe interactuar
+    isPlaying = true;
+    playBtn.textContent = "⏸";
+  });
+}
+
+/* ===== Botones Play/Pause/Next/Prev ===== */
+playBtn.onclick = function() {
   if (isPlaying) {
     audio.pause();
     playBtn.textContent = "▶";
@@ -217,39 +407,174 @@ playBtn.onclick = () => {
   isPlaying = !isPlaying;
 };
 
-document.getElementById("nextBtn").onclick = () => {
-  const idx = tracks.findIndex(t => t.id === current?.id);
-  playTrack(tracks[(idx + 1) % tracks.length]);
+document.getElementById("nextBtn").onclick = function() {
+  if (!displayedTracks.length) return;
+  var idx = displayedTracks.findIndex(function(t){ return t.id === (current && current.id); });
+  var next = displayedTracks[(idx + 1) % displayedTracks.length];
+  playTrack(next);
 };
 
-document.getElementById("prevBtn").onclick = () => {
-  const idx = tracks.findIndex(t => t.id === current?.id);
-  playTrack(tracks[(idx - 1 + tracks.length) % tracks.length]);
+document.getElementById("prevBtn").onclick = function() {
+  if (!displayedTracks.length) return;
+  var idx = displayedTracks.findIndex(function(t){ return t.id === (current && current.id); });
+  var prev = displayedTracks[(idx - 1 + displayedTracks.length) % displayedTracks.length];
+  playTrack(prev);
 };
 
-audio.ontimeupdate = () => {
-  const progress = (audio.currentTime / audio.duration) * 100;
-  progressFill.style.width = isNaN(progress) ? "0%" : `${progress}%`;
+/* ===== Actualizar barra de progreso ===== */
+audio.ontimeupdate = function() {
+  var progress = (audio.currentTime / audio.duration) * 100;
+  progressFill.style.width = isNaN(progress) ? "0%" : (progress + "%");
   currentTimeLabel.textContent = formatTime(audio.currentTime);
+  totalTimeLabel.textContent = isNaN(audio.duration) ? "0:00" : formatTime(audio.duration);
+  // guardar progreso opcional
 };
 
-document.getElementById("progressBar").onclick = (e) => {
-  const rect = e.target.getBoundingClientRect();
-  const newTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
+var progressBar = document.getElementById("progressBar");
+progressBar.addEventListener("click", function(e){
+  var rect = progressBar.getBoundingClientRect();
+  var x = e.clientX - rect.left;
+  var pct = x / rect.width;
+  var newTime = pct * audio.duration;
   audio.currentTime = isNaN(newTime) ? 0 : newTime;
-};
+});
 
-volumeControl.oninput = (e) => {
+/* ===== Volumen ===== */
+volumeControl.oninput = function(e) {
   audio.volume = e.target.value;
 };
 
-audio.onended = () => {
+/* ===== Cuando termina la canción ===== */
+audio.onended = function() {
   document.getElementById("nextBtn").click();
 };
 
-// Cargar álbum al abrir
-if (albumName) loadAlbum(albumName);
-else albumTitle.textContent = "Selecciona un álbum del menú";
+/* ===== Buscador (desktop + mobile) ===== */
+function applySearch(term) {
+  term = (term || "").toLowerCase();
+  if (!term) {
+    displayedTracks = (currentView === 'favoritos') ? favorites.slice() : tracks.slice();
+  } else {
+    var base = (currentView === 'favoritos') ? favorites : tracks;
+    displayedTracks = base.filter(function(t){
+      return (t.title || "").toLowerCase().includes(term) || (t.artist || "").toLowerCase().includes(term);
+    });
+  }
+  renderTracks(displayedTracks);
+}
+
+if (searchInput) searchInput.oninput = function(e){ applySearch(e.target.value); };
+if (searchInputMobile) searchInputMobile.oninput = function(e){ applySearch(e.target.value); };
+
+/* ===== Play All (reproducir todo del listado) ===== */
+if (playAllBtn) playAllBtn.onclick = function(){
+  if (!displayedTracks.length) return;
+  playTrack(displayedTracks[0]);
+};
+
+/* ===== Favoritos nav click ===== */
+favNav.onclick = function() {
+  showFavorites();
+};
+
+/* ===== Inicio view (volver a álbum) ===== */
+var inicioNavs = document.querySelectorAll('[data-view="inicio"]');
+inicioNavs.forEach(function(n){ n.onclick = function(){ 
+  currentView = 'album';
+  if (albumName) loadAlbum(albumName);
+  else albumTitle.textContent = "Selecciona un álbum del menú";
+}});
+
+/* ===== Guardar último track cuando se reproduce ===== */
+audio.onplay = function() {
+  if (current) {
+    localStorage.setItem("dp_lastTrack", JSON.stringify({ id: current.id }));
+  }
+  localStorage.setItem("dp_lastAlbum", albumName || localStorage.getItem("dp_lastAlbum") || "");
+  // también mantener favorites
+  saveFavorites();
+};
+
+/* ===== Mobile sidebar (clon tipo Spotify) ===== */
+hamburger.onclick = function() {
+  // crear overlay con sidebar dentro (si no existe)
+  mobileSidebarContainer.innerHTML = '\
+    <div id="mobileOverlay" class="fixed inset-0 flex z-50">\
+      <div class="w-72 bg-gradient-to-b from-gray-900 to-black p-5 h-full overflow-auto">\
+        <div class="flex items-center justify-between mb-4">\
+          <div class="text-2xl font-black">DarkPlayer</div>\
+          <button id="mobileClose" class="p-2 rounded hover:bg-white/5">✕</button>\
+        </div>\
+        <nav>\
+          <ul class="space-y-3 text-sm">\
+            <li class="flex items-center gap-3 hover:text-white cursor-pointer" id="mInicio">🏠 Inicio</li>\
+            <li><a href="?album=Formula2" class="hover:text-white">🎵 Romeo Santos - Fórmula Vol.2</a></li>\
+            <li><a href="?album=UnVeranoSinTi" class="hover:text-white">🌴 Bad Bunny - Un Verano Sin Ti</a></li>\
+            <li class="pt-4 border-t border-gray-800 text-xs opacity-80">Listas</li>\
+            <li class="flex items-center gap-3 hover:text-white cursor-pointer" id="mFav">⭐ Favoritos <span id="mFavCount" class="ml-2 text-xs opacity-70">' + favorites.length + '</span></li>\
+          </ul>\
+        </nav>\
+      </div>\
+      <div id="mobileOverlayBg" class="flex-1 overlay"></div>\
+    </div>';
+
+  // manejar cierre
+  document.getElementById("mobileClose").onclick = function(){ mobileSidebarContainer.innerHTML = ""; };
+  document.getElementById("mobileOverlayBg").onclick = function(){ mobileSidebarContainer.innerHTML = ""; };
+
+  // mobile nav actions
+  document.getElementById("mInicio").onclick = function(){
+    mobileSidebarContainer.innerHTML = "";
+    currentView = 'album';
+    if (albumName) loadAlbum(albumName);
+  };
+  document.getElementById("mFav").onclick = function(){
+    mobileSidebarContainer.innerHTML = "";
+    showFavorites();
+  };
+};
+
+/* ===== Small UX: close sidebar button in mobile (if open as fixed) ===== */
+if (closeSidebarBtn) closeSidebarBtn.onclick = function(){ sidebar.classList.add("hidden"); };
+
+/* ===== Escape key cerrar mobile overlay ===== */
+document.addEventListener("keydown", function(e){
+  if (e.key === "Escape") {
+    mobileSidebarContainer.innerHTML = "";
+  }
+});
+
+/* ===== Escape HTML helper (evitar inyección visual) ===== */
+function escapeHtml(unsafe) {
+  if (!unsafe && unsafe !== 0) return "";
+  return String(unsafe)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+/* ===== Inicialización ===== */
+(function init(){
+  loadFavorites();
+
+  // si hay album en query o en localStorage, cargarlo
+  var lastAlbum = localStorage.getItem("dp_lastAlbum");
+  if (albumName) {
+    loadAlbum(albumName);
+  } else if (lastAlbum) {
+    albumName = lastAlbum;
+    loadAlbum(albumName);
+  } else {
+    albumTitle.textContent = "Selecciona un álbum del menú";
+  }
+
+  // si el usuario usa mobile, mostrar search mobile vinculado
+  if (searchInputMobile) {
+    searchInputMobile.oninput = function(e){ applySearch(e.target.value); };
+  }
+})();
 </script>
 </body>
 </html>
