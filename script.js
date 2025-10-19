@@ -513,10 +513,7 @@ function debounce(func, wait) {
 }
 
 function applySearch(term) {
-  console.log("applySearch called with term:", JSON.stringify(term));
   if (!term || term.trim() === "") {
-    console.log("Term is empty or only spaces, resetting view");
-    previousView = null;
     if (currentView === 'search') {
       if (albumName) {
         loadAlbum(albumName);
@@ -529,9 +526,7 @@ function applySearch(term) {
 
   if (!previousView) previousView = currentView;
 
-  // Dividir el término en palabras, preservando el original para depuración
   var terms = term.toLowerCase().split(/\s+/).filter(t => t.length > 0);
-  console.log("Search terms:", terms);
 
   displayedTracks = allTracks.filter(function(t) {
     var title = (t.title || "").toLowerCase();
@@ -540,8 +535,6 @@ function applySearch(term) {
       return title.includes(word) || artist.includes(word);
     });
   });
-
-  console.log("Filtered tracks:", displayedTracks.length);
 
   currentView = 'search';
   if (welcomeSection) welcomeSection.classList.remove("hidden");
@@ -552,40 +545,49 @@ function applySearch(term) {
 
 var debouncedSearch = debounce(applySearch, 300);
 
-/* ===== Configurar el input del buscador ===== */
+// ===== Configurar el input del buscador =====
 function setupSearchInput(input) {
   if (!input) return;
 
-  // ✅ Escucha cuando el texto cambia (permite espacios y acentos)
-  input.addEventListener('input', function(e) {
-    // No usamos preventDefault aquí, para no bloquear la escritura
-    debouncedSearch(e.target.value);
-  });
-
-  // ✅ Detecta cuando se presiona Enter (para evitar enviar formularios)
-  input.addEventListener('keydown', function(e) {
-    console.log("Keydown event on", input.id, "key:", e.key, "value:", JSON.stringify(e.target.value));
-    if (e.key === "Enter") {
-      e.preventDefault(); // solo bloquea Enter
-      debouncedSearch(e.target.value);
+  // Evitar que el teclado se cierre automáticamente en móviles
+  input.addEventListener('blur', function(e) {
+    if (!input.dataset.allowBlur) {
+      e.preventDefault();
+      input.focus();
     }
   });
 
-  // ✅ Soporte para teclados móviles o con predicción
-  input.addEventListener('compositionstart', function() {
-    console.log("Composition started on", input.id);
+  // Escucha cuando el texto cambia (permite espacios y acentos)
+  input.addEventListener('input', function(e) {
+    debouncedSearch(e.target.value);
   });
 
+  // Detecta cuando se presiona Enter (permite cerrar teclado)
+  input.addEventListener('keydown', function(e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      input.dataset.allowBlur = true;
+      input.blur(); // cierra teclado en móvil
+      debouncedSearch(e.target.value);
+      setTimeout(function() {
+        input.dataset.allowBlur = false; // resetea
+      }, 100);
+    }
+  });
+
+  // Soporte para teclados con composición (móviles)
+  input.addEventListener('compositionstart', function() {});
   input.addEventListener('compositionend', function(e) {
-    console.log("Composition ended on", input.id, "value:", JSON.stringify(e.target.value));
     debouncedSearch(e.target.value);
   });
 }
 
+// ===== Inicializar todos los inputs =====
 setupSearchInput(searchInput);
 setupSearchInput(searchInputMobile);
 setupSearchInput(searchInputAlbum);
 setupSearchInput(searchInputMobileAlbum);
+
 
 /* ===== Play All ===== */
 if (playAllBtn) {
