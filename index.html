@@ -32,10 +32,10 @@ body { background-color: #111827; color: #f3f4f6; font-family: sans-serif; }
 
   <section class="bg-gray-800 p-4 rounded-lg flex flex-col">
     <div class="flex items-center gap-4 mb-4">
-      <img id="albumCover" src="" class="w-24 h-24 rounded" />
+      <img id="albumCover" src="https://via.placeholder.com/96" class="w-24 h-24 rounded" />
       <div>
-        <div id="albumArtist" class="font-medium"></div>
-        <div id="trackCount" class="text-xs opacity-70"></div>
+        <div id="albumArtist" class="font-medium">Cargando...</div>
+        <div id="trackCount" class="text-xs opacity-70">0 canciones</div>
       </div>
     </div>
 
@@ -58,10 +58,10 @@ body { background-color: #111827; color: #f3f4f6; font-family: sans-serif; }
 <footer class="fixed bottom-0 left-72 right-0 bg-gradient-to-r from-black via-gray-900 to-gray-800 p-3">
   <div class="max-w-[1200px] mx-auto flex items-center justify-between gap-4">
     <div class="flex items-center gap-3 w-1/3">
-      <img id="currentCover" src="" class="w-16 h-16 rounded" />
+      <img id="currentCover" src="https://via.placeholder.com/64" class="w-16 h-16 rounded" />
       <div>
-        <div id="currentTitle" class="font-semibold"></div>
-        <div id="currentArtist" class="text-xs opacity-70"></div>
+        <div id="currentTitle" class="font-semibold">Sin reproducción</div>
+        <div id="currentArtist" class="text-xs opacity-70">Desconocido</div>
       </div>
     </div>
 
@@ -114,121 +114,170 @@ let isPlaying = false;
 audio.volume = 0.8;
 
 function formatTime(sec) {
+  if (isNaN(sec)) return "0:00";
   const m = Math.floor(sec / 60);
   const s = Math.floor(sec % 60).toString().padStart(2, "0");
   return `${m}:${s}`;
 }
 
 async function loadAlbum(name) {
+  console.log(`Intentando cargar álbum: ${name}`);
+  if (!name) {
+    console.error("No se proporcionó un nombre de álbum en la URL");
+    albumTitle.textContent = "Error: No se especificó un álbum";
+    return;
+  }
+
   try {
-    // Determine artist folder based on album name
+    // Determine artist folder and cover file based on album name
     let artistFolder = "";
-    let coverFile = "default.jpg"; // Default cover
+    let coverFile = "default.jpg";
     if (name === "Formula2") {
       artistFolder = "RomeoSantos";
-      coverFile = "Formula2.jpg"; // Adjust based on actual file name in assets/portadas
+      coverFile = "Formula2.jpg"; // Asegúrate de que este archivo existe
     } else if (name === "UnVeranoSinTi") {
       artistFolder = "BadBunny";
-      coverFile = "UnVeranoSinTi.jpg"; // Adjust based on actual file name in assets/portadas
+      coverFile = "UnVeranoSinTi.jpg"; // Asegúrate de que este archivo existe
+    } else {
+      throw new Error(`Álbum desconocido: ${name}`);
     }
 
     // Fetch JSON from GitHub
     const jsonUrl = `https://raw.githubusercontent.com/lzrdrz10/musiclive/main/${artistFolder}/${name}.json`;
+    console.log(`Cargando JSON desde: ${jsonUrl}`);
     const res = await fetch(jsonUrl);
-    if (!res.ok) throw new Error(`Failed to fetch JSON: ${res.status}`);
+    if (!res.ok) throw new Error(`Error al cargar JSON: ${res.status} ${res.statusText}`);
     const data = await res.json();
+    console.log("JSON cargado:", data);
+
+    // Validate JSON structure
+    if (!Array.isArray(data) || data.length === 0) {
+      throw new Error("El JSON no contiene datos válidos o está vacío");
+    }
 
     // Update album metadata
     albumTitle.textContent = data[0].album || name;
     albumArtist.textContent = data[0].artist || "Desconocido";
     
     // Set album cover from GitHub
-    albumCover.src = `https://raw.githubusercontent.com/lzrdrz10/musiclive/main/assets/portadas/${coverFile}`;
+    const coverUrl = `https://raw.githubusercontent.com/lzrdrz10/musiclive/main/assets/portadas/${coverFile}`;
+    console.log(`Cargando portada desde: ${coverUrl}`);
+    albumCover.src = coverUrl;
     
     // Map tracks and set cover URLs
     tracks = data.map(track => ({
       ...track,
-      cover: `https://raw.githubusercontent.com/lzrdrz10/musiclive/main/assets/portadas/${coverFile}`
+      cover: coverUrl
     }));
     
     trackCount.textContent = tracks.length + " canciones";
+    console.log("Pistas cargadas:", tracks);
     loadTrack(tracks[0]);
     renderTracks(tracks);
   } catch(e) {
     console.error("Error cargando el álbum:", e);
     albumTitle.textContent = "Error al cargar el álbum";
+    albumArtist.textContent = "No disponible";
+    trackCount.textContent = "0 canciones";
+    albumCover.src = "https://via.placeholder.com/96";
   }
 }
 
 function loadTrack(track) {
+  console.log("Cargando pista:", track);
   current = track;
   audio.src = track.url;
-  currentCover.src = track.cover;
-  currentTitle.textContent = track.title;
-  currentArtist.textContent = track.artist;
-  totalTimeLabel.textContent = formatTime(track.duration);
+  currentCover.src = track.cover || "https://via.placeholder.com/64";
+  currentTitle.textContent = track.title || "Sin título";
+  currentArtist.textContent = track.artist || "Desconocido";
+  totalTimeLabel.textContent = formatTime(track.duration || 0);
   renderTracks(tracks);
 }
 
 function renderTracks(list) {
+  console.log("Renderizando pistas:", list);
   trackList.innerHTML = "";
   list.forEach(t => {
     const tr = document.createElement("tr");
-    tr.className = `cursor-pointer hover:bg-gray-700/30 ${t.id === current.id ? "bg-gray-700/60" : ""}`;
+    tr.className = `cursor-pointer hover:bg-gray-700/30 ${t.id === current?.id ? "bg-gray-700/60" : ""}`;
     tr.innerHTML = `
-      <td class="pl-3 py-3">${t.id}</td>
+      <td class="pl-3 py-3">${t.id || "-"}</td>
       <td>
         <div class="flex items-center gap-3">
-          <img src="${t.cover}" class="w-10 h-10 rounded" />
+          <img src="${t.cover || 'https://via.placeholder.com/40'}" class="w-10 h-10 rounded" />
           <div>
-            <div class="font-medium">${t.title}</div>
-            <div class="text-xs opacity-70">${t.artist}</div>
+            <div class="font-medium">${t.title || "Sin título"}</div>
+            <div class="text-xs opacity-70">${t.artist || "Desconocido"}</div>
           </div>
         </div>
       </td>
-      <td class="text-right pr-3">${formatTime(t.duration)}</td>`;
+      <td class="text-right pr-3">${formatTime(t.duration || 0)}</td>`;
     tr.onclick = () => playTrack(t);
     trackList.appendChild(tr);
   });
 }
 
 function playTrack(track) {
-  if(current.id !== track.id) loadTrack(track);
-  audio.play();
+  console.log("Reproduciendo pista:", track);
+  if (!current || current.id !== track.id) loadTrack(track);
+  audio.play().catch(e => console.error("Error al reproducir audio:", e));
   isPlaying = true;
   playBtn.textContent = "⏸";
 }
 
 playBtn.onclick = () => {
-  if(isPlaying) { audio.pause(); playBtn.textContent = "▶"; }
-  else { audio.play(); playBtn.textContent = "⏸"; }
+  console.log("Botón de reproducción/pausa clicado, isPlaying:", isPlaying);
+  if (isPlaying) {
+    audio.pause();
+    playBtn.textContent = "▶";
+  } else {
+    audio.play().catch(e => console.error("Error al reproducir audio:", e));
+    playBtn.textContent = "⏸";
+  }
   isPlaying = !isPlaying;
 };
 
 document.getElementById("nextBtn").onclick = () => {
-  const idx = tracks.findIndex(t => t.id === current.id);
-  playTrack(tracks[(idx+1)%tracks.length]);
+  console.log("Botón siguiente clicado");
+  const idx = tracks.findIndex(t => t.id === current?.id);
+  playTrack(tracks[(idx + 1) % tracks.length]);
 };
+
 document.getElementById("prevBtn").onclick = () => {
-  const idx = tracks.findIndex(t => t.id === current.id);
-  playTrack(tracks[(idx-1+tracks.length)%tracks.length]);
+  console.log("Botón anterior clicado");
+  const idx = tracks.findIndex(t => t.id === current?.id);
+  playTrack(tracks[(idx - 1 + tracks.length) % tracks.length]);
 };
 
 audio.ontimeupdate = () => {
-  const progress = audio.currentTime / audio.duration * 100;
-  progressFill.style.width = progress + "%";
+  const progress = (audio.currentTime / audio.duration) * 100;
+  progressFill.style.width = isNaN(progress) ? "0%" : `${progress}%`;
   currentTimeLabel.textContent = formatTime(audio.currentTime);
 };
 
 document.getElementById("progressBar").onclick = (e) => {
   const rect = e.target.getBoundingClientRect();
-  audio.currentTime = ((e.clientX - rect.left)/rect.width)*audio.duration;
+  const newTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
+  audio.currentTime = isNaN(newTime) ? 0 : newTime;
 };
 
-volumeControl.oninput = (e) => { audio.volume = e.target.value; };
-audio.onended = () => document.getElementById("nextBtn").click();
+volumeControl.oninput = (e) => {
+  console.log("Ajustando volumen a:", e.target.value);
+  audio.volume = e.target.value;
+};
 
-if(albumName) loadAlbum(albumName);
+audio.onended = () => {
+  console.log("Audio terminado, pasando al siguiente");
+  document.getElementById("nextBtn").click();
+};
+
+// Load album if albumName is provided
+console.log("Album name from URL:", albumName);
+if (albumName) {
+  loadAlbum(albumName);
+} else {
+  albumTitle.textContent = "Por favor, selecciona un álbum";
+}
 </script>
 </body>
 </html>
