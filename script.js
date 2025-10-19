@@ -112,6 +112,7 @@ function getRandomTrack() {
 
 async function loadAllAlbums() {
   var albums = [
+    {name: "Formula1", artistFolder: "RomeoSantos", coverFile: "formula1original.jpg", artist: "Romeo Santos"},
     {name: "Formula2", artistFolder: "RomeoSantos", coverFile: "Formula2.JPEG", artist: "Romeo Santos"},
     {name: "UnVeranoSinTi", artistFolder: "BadBunny", coverFile: "UnVeranoSinTi.jpeg", artist: "Bad Bunny"},
     {name: "TuUltimaCancion", artistFolder: "Temerarios", coverFile: "TuUltimaCancion.jpeg", artist: "Los Temerarios"},
@@ -183,7 +184,8 @@ function renderSidebar() {
           <summary class="flex items-center gap-3 text-sm">' + escapeHtml(artist) + '</summary>\
           <ul class="text-sm">';
       artists[artist].forEach(function(alb) {
-        var icon = alb.name === "Formula2" ? "💿" :
+        var icon = alb.name === "Formula1" ? "💿" :
+                   alb.name === "Formula2" ? "💿" :
                    alb.name === "UnVeranoSinTi" ? "💿" :
                    alb.name === "TuUltimaCancion" ? "💿" :
                    alb.name === "Formula3" ? "💿" : "💿";
@@ -597,7 +599,8 @@ if (hamburger) {
             <summary class="flex items-center gap-3 text-sm">' + escapeHtml(artist) + '</summary>\
             <ul class="text-sm">';
         artists[artist].forEach(function(alb) {
-          var icon = alb.name === "Formula2" ? "💿" :
+          var icon = alb.name === "Formula1" ? "💿" :
+                   alb.name === "Formula2" ? "💿" :
                    alb.name === "UnVeranoSinTi" ? "💿" :
                    alb.name === "TuUltimaCancion" ? "💿" :
                    alb.name === "Formula3" ? "💿" : "💿";
