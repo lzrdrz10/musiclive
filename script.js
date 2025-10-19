@@ -16,6 +16,7 @@ var playBtn = document.getElementById("playPauseBtn");
 var currentCover = document.getElementById("currentCover");
 var currentTitle = document.getElementById("currentTitle");
 var currentArtist = document.getElementById("currentArtist");
+var progressBar = document.getElementById("progressBar");
 var progressFill = document.getElementById("progressFill");
 var currentTimeLabel = document.getElementById("currentTime");
 var totalTimeLabel = document.getElementById("totalTime");
@@ -448,7 +449,7 @@ if (shuffleBtn) {
   };
 }
 
-/* ===== Actualizar barra de progreso ===== */
+/* ===== Actualizar barra de progreso y hacerla interactiva ===== */
 if (audio) {
   audio.ontimeupdate = function() {
     var progress = (audio.currentTime / audio.duration) * 100;
@@ -458,6 +459,42 @@ if (audio) {
   };
 }
 
+if (progressBar) {
+  function setProgress(e) {
+    var rect = progressBar.getBoundingClientRect();
+    var x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
+    var width = rect.width;
+    var percentage = Math.max(0, Math.min(1, x / width));
+    if (!isNaN(audio.duration)) {
+      audio.currentTime = percentage * audio.duration;
+    }
+  }
+
+  progressBar.addEventListener("click", setProgress);
+
+  var isDragging = false;
+  progressBar.addEventListener("mousedown", function(e) {
+    isDragging = true;
+    setProgress(e);
+  });
+  document.addEventListener("mousemove", function(e) {
+    if (isDragging) setProgress(e);
+  });
+  document.addEventListener("mouseup", function() {
+    isDragging = false;
+  });
+
+  progressBar.addEventListener("touchstart", function(e) {
+    e.preventDefault();
+    setProgress(e);
+  });
+  progressBar.addEventListener("touchmove", function(e) {
+    e.preventDefault();
+    setProgress(e);
+  });
+  progressBar.addEventListener("touchend", function() {});
+}
+
 /* ===== Cuando termina la canción ===== */
 if (audio) {
   audio.onended = function() {
@@ -465,10 +502,20 @@ if (audio) {
   };
 }
 
-/* ===== Buscador global ===== */
+/* ===== Buscador global optimizado con debounce ===== */
+function debounce(func, wait) {
+  var timeout;
+  return function(...args) {
+    var context = this;
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(context, args), wait);
+  };
+}
+
 function applySearch(term) {
-  term = (term || "").toLowerCase().trim();
-  if (term === "") {
+  console.log("applySearch called with term:", JSON.stringify(term));
+  if (!term || term.trim() === "") {
+    console.log("Term is empty or only spaces, resetting view");
     previousView = null;
     if (currentView === 'search') {
       if (albumName) {
@@ -482,25 +529,58 @@ function applySearch(term) {
 
   if (!previousView) previousView = currentView;
 
-  displayedTracks = allTracks.filter(function(t){
-    return t.title.toLowerCase().includes(term) || t.artist.toLowerCase().includes(term);
+  // Dividir el término en palabras, preservando el original para depuración
+  var terms = term.toLowerCase().split(/\s+/).filter(t => t.length > 0);
+  console.log("Search terms:", terms);
+
+  displayedTracks = allTracks.filter(function(t) {
+    var title = (t.title || "").toLowerCase();
+    var artist = (t.artist || "").toLowerCase();
+    return terms.every(function(word) {
+      return title.includes(word) || artist.includes(word);
+    });
   });
+
+  console.log("Filtered tracks:", displayedTracks.length);
 
   currentView = 'search';
   if (welcomeSection) welcomeSection.classList.remove("hidden");
   if (albumSection) albumSection.classList.add("hidden");
   if (trackCount) trackCount.textContent = displayedTracks.length + " resultados";
   renderTracks(displayedTracks, trackListEl);
-  if (searchInput) searchInput.value = term;
-  if (searchInputMobile) searchInputMobile.value = term;
-  if (searchInputAlbum) searchInputAlbum.value = term;
-  if (searchInputMobileAlbum) searchInputMobileAlbum.value = term;
 }
 
-if (searchInput) searchInput.oninput = function(e){ applySearch(e.target.value); };
-if (searchInputMobile) searchInputMobile.oninput = function(e){ applySearch(e.target.value); };
-if (searchInputAlbum) searchInputAlbum.oninput = function(e){ applySearch(e.target.value); };
-if (searchInputMobileAlbum) searchInputMobileAlbum.oninput = function(e){ applySearch(e.target.value); };
+var debouncedSearch = debounce(applySearch, 300);
+
+// Usar addEventListener para capturar entrada cruda
+function setupSearchInput(input) {
+  if (!input) return;
+  input.addEventListener('input', function(e) {
+    console.log("Raw input event on", input.id, "value:", JSON.stringify(e.target.value));
+    e.preventDefault();
+    debouncedSearch(e.target.value);
+  });
+  input.addEventListener('keydown', function(e) {
+    console.log("Keydown event on", input.id, "key:", e.key, "value:", JSON.stringify(e.target.value));
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      debouncedSearch(e.target.value);
+    }
+  });
+  // Manejar composición de texto para teclados móviles
+  input.addEventListener('compositionstart', function() {
+    console.log("Composition started on", input.id);
+  });
+  input.addEventListener('compositionend', function(e) {
+    console.log("Composition ended on", input.id, "value:", JSON.stringify(e.target.value));
+    debouncedSearch(e.target.value);
+  });
+}
+
+setupSearchInput(searchInput);
+setupSearchInput(searchInputMobile);
+setupSearchInput(searchInputAlbum);
+setupSearchInput(searchInputMobileAlbum);
 
 /* ===== Play All ===== */
 if (playAllBtn) {
