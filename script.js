@@ -119,6 +119,8 @@ async function loadAllGenres() {
     { name: "Phonk", folder: "Phonk", jsonFile: "phonk.json" },
     { name: "Regional Mexicano", folder: "RegionalMexicano", jsonFile: "regional.json" },
     { name: "Regueton", folder: "Regueton", jsonFile: "regueton.json" },
+    { name: "Merengue", folder: "Merengue", jsonFile: "merengue.json" },
+    { name: "Sandunga De La Chuca", folder: "Sandungueo", jsonFile: "sandungueo.json" },
     { name: "Hip Hop Rap", folder: "HipHop", jsonFile: "hiphop.json" }
   ];
 
