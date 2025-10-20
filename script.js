@@ -116,7 +116,8 @@ async function loadAllAlbums() {
     {name: "Formula2", artistFolder: "RomeoSantos", coverFile: "Formula2.JPEG", artist: "Romeo Santos"},
     {name: "UnVeranoSinTi", artistFolder: "BadBunny", coverFile: "UnVeranoSinTi.jpeg", artist: "Bad Bunny"},
     {name: "TuUltimaCancion", artistFolder: "Temerarios", coverFile: "TuUltimaCancion.jpeg", artist: "Los Temerarios"},
-    {name: "Formula3", artistFolder: "RomeoSantos", coverFile: "Formula1.jpg", artist: "Romeo Santos"}
+    {name: "Formula3", artistFolder: "RomeoSantos", coverFile: "Formula1.jpg", artist: "Romeo Santos"},
+    {name: "CrystalCastles", artistFolder: "CrystalCastles", coverFile: "CrystalCastles.jpg", artist: "Crystal Castles"}
   ];
 
   allTracks = [];
@@ -188,6 +189,7 @@ function renderSidebar() {
                    alb.name === "Formula2" ? "💿" :
                    alb.name === "UnVeranoSinTi" ? "💿" :
                    alb.name === "TuUltimaCancion" ? "💿" :
+                   alb.name === "CrystalCastles" ? "💿" :
                    alb.name === "Formula3" ? "💿" : "💿";
         navHtml += '<li><a href="?album=' + alb.name + '" class="hover:text-white">' + icon + ' ' + escapeHtml(alb.name) + '</a></li>';
       });
@@ -603,6 +605,7 @@ if (hamburger) {
                    alb.name === "Formula2" ? "💿" :
                    alb.name === "UnVeranoSinTi" ? "💿" :
                    alb.name === "TuUltimaCancion" ? "💿" :
+                   alb.name === "CrystalCastles" ? "💿" :
                    alb.name === "Formula3" ? "💿" : "💿";
           navHtml += '<li><a href="?album=' + alb.name + '" class="hover:text-white">' + icon + ' ' + escapeHtml(alb.name) + '</a></li>';
         });
