@@ -39,7 +39,53 @@
     "duration": 240,
     "url": "http://musiclive.lzplayhd.online/musicas/Los%20Hermanos%20Flores%20-%20Salvadore%C3%B1as%20(Audio%20HQ)%20%5BIZnsttPMH7E%5D.mp3",
     "cover": "assets/portadas/hermanosflores.jpeg"
+  },{
+    "id": 6,
+    "title": "17 años",
+    "artist": "Los Ángeles Azules",
+    "album": "Una lluvia de rosas",
+    "duration": 240,
+    "url": "http://musiclive.lzplayhd.online/musicas/17%20A%C3%B1os%20-%20Los%20Angeles%20Azules%20(Letra)%20%5ByoEfkn0PS7M%5D.mp3",
+    "cover": "assets/portadas/youtube.jpeg"
+  },{
+    "id": 7,
+    "title": "Pelotero A La Bola",
+    "artist": "Airam Paez, 8Uno",
+    "album": "Pelotero A La Bola",
+    "duration": 240,
+    "url": "http://musiclive.lzplayhd.online/musicas/8Uno%20-%20Pelotero%20A%20La%20Bola%20Feat.%20Airam%20P%C3%A1ez%20(Video%20Oficial)%20%23warnermusicmexico%20%5BrEUOTboDmBQ%5D.mp3",
+    "cover": "assets/portadas/8uno.jpeg"
+  },{
+    "id": 8,
+    "title": "Mueve el toto",
+    "artist": "Lore y Roque Me Gusta",
+    "album": "Mezclas de Amigos",
+    "duration": 240,
+    "url": "http://musiclive.lzplayhd.online/musicas/Juan%20Quin%20y%20Dago%20Ft.%20Lore%20y%20Roque%20Me%20Gusta%20-%20Mueve%20El%20Toto%20%5B61XU4pGOfMw%5D.mp3",
+    "cover": "assets/portadas/youtube.jpeg"
+  },{
+    "id": 9,
+    "title": "Paloma ajena",
+    "artist": "Agua Marina",
+    "album": "Vol. 13: Así es el amor",
+    "duration": 240,
+    "url": "http://musiclive.lzplayhd.online/musicas/Los%20ecos%20-%20Paloma%20ajena%20(Letra)%20%5B9X-LLbfd4ak%5D.mp3",
+    "cover": "assets/portadas/youtube.jpeg"
+  },{
+    "id": 10,
+    "title": "Nitido Remix",
+    "artist": "Dj Chivo Oficial",
+    "album": "Desconocido",
+    "duration": 240,
+    "url": "http://musiclive.lzplayhd.online/musicas/NITIDO%20Remix%20-%20(DjChivo)%20%5BzsRq6rchhXY%5D.mp3",
+    "cover": "assets/portadas/youtube.jpeg"
+  },{
+    "id": 11,
+    "title": "El Paso del Gigante",
+    "artist": "Grupo Soñador",
+    "album": "Los Reyes De Los Sonidos",
+    "duration": 240,
+    "url": "http://musiclive.lzplayhd.online/musicas/_El%20paso%20del%20gigante_%20-%20GRUPO%20SO%C3%91ADOR%20-%20Autor%20Beto%20Tlahuetl%20%5Buj80VjraMQc%5D.mp3",
+    "cover": "assets/portadas/youtube.jpeg"
   }
   ]
-
-
