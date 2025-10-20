@@ -113,6 +113,7 @@ function getRandomTrack() {
 async function loadAllGenres() {
   var genres = [
     { name: "Bachata", folder: "Bachata", jsonFile: "bachata.json" },
+    { name: "Corridos", folder: "Corridos", jsonFile: "corridos.json" },
     { name: "Cumbias", folder: "Cumbias", jsonFile: "cumbias.json" },
     { name: "Dark Electronic", folder: "DarkElectronic", jsonFile: "darkelectronic.json" },
     { name: "Grupera", folder: "Grupera", jsonFile: "grupera.json" },
