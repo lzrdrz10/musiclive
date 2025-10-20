@@ -117,7 +117,7 @@ async function loadAllAlbums() {
     {name: "UnVeranoSinTi", artistFolder: "BadBunny", coverFile: "UnVeranoSinTi.jpeg", artist: "Bad Bunny"},
     {name: "TuUltimaCancion", artistFolder: "Temerarios", coverFile: "TuUltimaCancion.jpeg", artist: "Los Temerarios"},
     {name: "Formula3", artistFolder: "RomeoSantos", coverFile: "Formula1.jpg", artist: "Romeo Santos"},
-    {name: "CrystalCastles", artistFolder: "CrystalCastles", coverFile: "CrystalCastles.jpg", artist: "Crystal Castles"}
+    {name: "CrystalCastles", artistFolder: "CrystalCastles", coverFile: "CrystalCastles.jpeg", artist: "Crystal Castles"}
   ];
 
   allTracks = [];
