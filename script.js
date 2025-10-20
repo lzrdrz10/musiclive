@@ -1,15 +1,15 @@
 var urlParams = new URLSearchParams(window.location.search);
-var albumName = urlParams.get('album');
+var genreName = urlParams.get('genre');
 
 var audio = document.getElementById("audio");
 var welcomeSection = document.getElementById("welcomeSection");
-var albumSection = document.getElementById("albumSection");
+var genreSection = document.getElementById("albumSection");
 var trackListEl = document.getElementById("trackList");
-var albumTrackListEl = document.getElementById("albumTrackList");
-var albumTitle = document.getElementById("albumTitle");
-var albumArtist = document.getElementById("albumArtist");
-var albumCover = document.getElementById("albumCover");
-var albumTrackCount = document.getElementById("albumTrackCount");
+var genreTrackListEl = document.getElementById("albumTrackList");
+var genreTitle = document.getElementById("albumTitle");
+var genreArtist = document.getElementById("albumArtist");
+var genreCover = document.getElementById("albumCover");
+var genreTrackCount = document.getElementById("albumTrackCount");
 var playBtn = document.getElementById("playPauseBtn");
 var currentCover = document.getElementById("currentCover");
 var currentTitle = document.getElementById("currentTitle");
@@ -20,8 +20,8 @@ var currentTimeLabel = document.getElementById("currentTime");
 var totalTimeLabel = document.getElementById("totalTime");
 var searchInput = document.getElementById("searchTrack");
 var searchInputMobile = document.getElementById("searchTrackMobile");
-var searchInputAlbum = document.getElementById("searchTrackAlbum");
-var searchInputMobileAlbum = document.getElementById("searchTrackMobileAlbum");
+var searchInputGenre = document.getElementById("searchTrackAlbum");
+var searchInputMobileGenre = document.getElementById("searchTrackMobileAlbum");
 var favCountEl = document.getElementById("favCount");
 var favNav = document.getElementById("favNav");
 var hamburger = document.getElementById("hamburger");
@@ -41,7 +41,7 @@ var favorites = [];
 var currentView = 'welcome';
 var previousView = null;
 var allTracks = [];
-var albumsTracks = {};
+var genresTracks = {};
 var artists = {};
 audio.volume = 0.8;
 
@@ -73,7 +73,7 @@ function updateFavUI() {
   var mFavCount = document.getElementById("mFavCount");
   if (mFavCount) mFavCount.textContent = favorites.length;
   if (footerFavBtn && current) {
-    var isFav = favorites.some(function(f){ return f.id === current.id && f.album === current.album; });
+    var isFav = favorites.some(function(f){ return f.id === current.id && f.genre === current.genre; });
     footerFavBtn.textContent = isFav ? "★" : "☆";
     footerFavBtn.classList.toggle("active", isFav);
   }
@@ -110,63 +110,85 @@ function getRandomTrack() {
   return displayedTracks[idx];
 }
 
-async function loadAllAlbums() {
-  var albums = [
-    {name: "Formula1", artistFolder: "RomeoSantos", coverFile: "formula1original.jpg", artist: "Romeo Santos"},
-    {name: "Formula2", artistFolder: "RomeoSantos", coverFile: "Formula2.JPEG", artist: "Romeo Santos"},
-    {name: "UnVeranoSinTi", artistFolder: "BadBunny", coverFile: "UnVeranoSinTi.jpeg", artist: "Bad Bunny"},
-    {name: "TuUltimaCancion", artistFolder: "Temerarios", coverFile: "TuUltimaCancion.jpeg", artist: "Los Temerarios"},
-    {name: "Formula3", artistFolder: "RomeoSantos", coverFile: "Formula1.jpg", artist: "Romeo Santos"},
-    {name: "CrystalCastles", artistFolder: "CrystalCastles", coverFile: "CrystalCastles.jpeg", artist: "Crystal Castles"}
+async function loadAllGenres() {
+  var genres = [
+    { name: "Bachata", folder: "Bachata", jsonFile: "bachata.json" },
+    { name: "Grupera", folder: "Grupera", jsonFile: "grupera.json" },
+    { name: "Regueton", folder: "Regueton", jsonFile: "regueton.json" }
   ];
 
   allTracks = [];
-  albumsTracks = {};
+  genresTracks = {};
   artists = {};
 
-  for (let alb of albums) {
+  for (let genre of genres) {
     try {
-      var jsonUrl = `https://raw.githubusercontent.com/lzrdrz10/musiclive/main/${alb.artistFolder}/${alb.name}.json`;
+      var jsonUrl = `https://raw.githubusercontent.com/lzrdrz10/musiclive/main/${genre.folder}/${genre.jsonFile}`;
       console.log("Intentando cargar JSON:", jsonUrl);
       var res = await fetch(jsonUrl);
-      if (!res.ok) throw new Error(`Error al cargar JSON para ${alb.name}: ${res.status}`);
+      if (!res.ok) throw new Error(`Error al cargar JSON para ${genre.name}: ${res.status}`);
       var data = await res.json();
 
-      if (!Array.isArray(data) || data.length === 0) throw new Error(`JSON vacío o inválido para ${alb.name}`);
-
-      var coverUrl = `https://raw.githubusercontent.com/lzrdrz10/musiclive/main/portadas/${alb.coverFile}`;
-      var coverRes = await fetch(coverUrl);
-      if (!coverRes.ok) {
-        console.warn(`Portada no encontrada para ${alb.name}: ${coverUrl}, usando placeholder`);
-        coverUrl = "https://via.placeholder.com/96";
-      }
+      if (!Array.isArray(data) || data.length === 0) throw new Error(`JSON vacío o inválido para ${genre.name}`);
 
       var tracks = data.map(function(t, idx) {
-        return {
-          id: t.id || idx + 1,
-          title: t.title || ("Pista " + (idx + 1)),
-          artist: t.artist || alb.artist || "Desconocido",
-          url: t.url || "",
-          duration: t.duration || 0,
-          album: t.album || alb.name,
-          cover: coverUrl
-        };
+        var coverUrl = t.cover && t.cover.startsWith("assets/portadas/")
+          ? `https://raw.githubusercontent.com/lzrdrz10/musiclive/main/portadas/${t.cover.replace("assets/portadas/", "")}`
+          : t.cover || "https://via.placeholder.com/96";
+        
+        // Verify cover URL accessibility
+        return fetch(coverUrl, { method: 'HEAD' })
+          .then(res => {
+            if (!res.ok) {
+              console.warn(`Portada no encontrada para ${t.title}: ${coverUrl}, usando placeholder`);
+              coverUrl = "https://via.placeholder.com/96";
+            }
+            return {
+              id: t.id || idx + 1,
+              title: t.title || ("Pista " + (idx + 1)),
+              artist: t.artist || "Desconocido",
+              url: t.url || "",
+              duration: t.duration || 0,
+              album: t.album || "Desconocido",
+              cover: coverUrl,
+              genre: genre.name
+            };
+          })
+          .catch(e => {
+            console.warn(`Error verificando portada para ${t.title}: ${coverUrl}, usando placeholder`, e);
+            return {
+              id: t.id || idx + 1,
+              title: t.title || ("Pista " + (idx + 1)),
+              artist: t.artist || "Desconocido",
+              url: t.url || "",
+              duration: t.duration || 0,
+              album: t.album || "Desconocido",
+              cover: "https://via.placeholder.com/96",
+              genre: genre.name
+            };
+          });
       });
 
-      albumsTracks[alb.name] = tracks;
+      // Resolve all cover URL checks
+      tracks = await Promise.all(tracks);
+      genresTracks[genre.name] = tracks;
       allTracks.push(...tracks);
 
-      if (!artists[alb.artist]) {
-        artists[alb.artist] = [];
-      }
-      artists[alb.artist].push(alb);
+      tracks.forEach(function(track) {
+        if (!artists[track.artist]) {
+          artists[track.artist] = [];
+        }
+        if (!artists[track.artist].some(a => a.name === track.album)) {
+          artists[track.artist].push({ name: track.album, genre: genre.name, coverFile: track.cover });
+        }
+      });
 
     } catch (e) {
-      console.error(`Error cargando álbum ${alb.name}:`, e);
+      console.error(`Error cargando género ${genre.name}:`, e);
     }
   }
 
-  console.log("Álbumes cargados:", Object.keys(albumsTracks));
+  console.log("Géneros cargados:", Object.keys(genresTracks));
   console.log("Artistas encontrados:", Object.keys(artists));
 
   renderSidebar();
@@ -177,24 +199,9 @@ function renderSidebar() {
   var navHtml = '\
     <li class="flex items-center gap-3 hover:text-white cursor-pointer" data-view="welcome">🏠 Inicio</li>';
   
-  var artistNames = Object.keys(artists).sort();
-  for (var artist of artistNames) {
-    if (artists.hasOwnProperty(artist)) {
-      navHtml += '\
-        <li><details class="hover:text-white">\
-          <summary class="flex items-center gap-3 text-sm">' + escapeHtml(artist) + '</summary>\
-          <ul class="text-sm">';
-      artists[artist].forEach(function(alb) {
-        var icon = alb.name === "Formula1" ? "💿" :
-                   alb.name === "Formula2" ? "💿" :
-                   alb.name === "UnVeranoSinTi" ? "💿" :
-                   alb.name === "TuUltimaCancion" ? "💿" :
-                   alb.name === "CrystalCastles" ? "💿" :
-                   alb.name === "Formula3" ? "💿" : "💿";
-        navHtml += '<li><a href="?album=' + alb.name + '" class="hover:text-white">' + icon + ' ' + escapeHtml(alb.name) + '</a></li>';
-      });
-      navHtml += '</ul></details></li>';
-    }
+  var genreNames = Object.keys(genresTracks).sort();
+  for (var genre of genreNames) {
+    navHtml += '<li><a href="?genre=' + genre + '" class="hover:text-white">🎵 ' + escapeHtml(genre) + '</a></li>';
   }
 
   navHtml += '\
@@ -223,48 +230,48 @@ function renderSidebar() {
 function showWelcome() {
   currentView = 'welcome';
   if (welcomeSection) welcomeSection.classList.remove("hidden");
-  if (albumSection) albumSection.classList.add("hidden");
+  if (genreSection) genreSection.classList.add("hidden");
   displayedTracks = allTracks.slice();
   renderTracks(displayedTracks, trackListEl);
 
   if (searchInput) searchInput.value = "";
   if (searchInputMobile) searchInputMobile.value = "";
-  if (searchInputAlbum) searchInputAlbum.value = "";
-  if (searchInputMobileAlbum) searchInputMobileAlbum.value = "";
+  if (searchInputGenre) searchInputGenre.value = "";
+  if (searchInputMobileGenre) searchInputMobileGenre.value = "";
 }
 
-function loadAlbum(name) {
-  if (!name || !albumsTracks[name]) {
-    if (albumTitle) albumTitle.textContent = "Álbum no encontrado";
-    if (albumArtist) albumArtist.textContent = "No disponible";
-    if (albumCover) albumCover.src = "https://via.placeholder.com/96";
+function loadGenre(name) {
+  if (!name || !genresTracks[name]) {
+    if (genreTitle) genreTitle.textContent = "Género no encontrado";
+    if (genreArtist) genreArtist.textContent = "No disponible";
+    if (genreCover) genreCover.src = "https://via.placeholder.com/96";
     tracks = [];
     displayedTracks = [];
-    renderTracks([], albumTrackListEl);
+    renderTracks([], genreTrackListEl);
     return;
   }
 
   if (welcomeSection) welcomeSection.classList.add("hidden");
-  if (albumSection) albumSection.classList.remove("hidden");
-  tracks = albumsTracks[name];
-  if (albumTitle) albumTitle.textContent = tracks[0].album || name;
-  if (albumArtist) albumArtist.textContent = tracks[0].artist || "Desconocido";
-  if (albumCover) albumCover.src = tracks[0].cover || "https://via.placeholder.com/96";
-  if (albumTrackCount) albumTrackCount.textContent = tracks.length + " canciones";
+  if (genreSection) genreSection.classList.remove("hidden");
+  tracks = genresTracks[name];
+  if (genreTitle) genreTitle.textContent = name;
+  if (genreArtist) genreArtist.textContent = tracks[0].artist || "Varios Artistas";
+  if (genreCover) genreCover.src = tracks[0].cover || "https://via.placeholder.com/96";
+  if (genreTrackCount) genreTrackCount.textContent = tracks.length + " canciones";
   displayedTracks = tracks.slice();
-  renderTracks(displayedTracks, albumTrackListEl);
+  renderTracks(displayedTracks, genreTrackListEl);
 
   var lastTrack = JSON.parse(localStorage.getItem("dp_lastTrack") || "null");
   var saved = lastTrack ? tracks.find(function(x){ return x.id === lastTrack.id; }) : null;
   loadTrack(saved || tracks[0]);
 
-  localStorage.setItem("dp_lastAlbum", name);
-  currentView = 'album';
+  localStorage.setItem("dp_lastGenre", name);
+  currentView = 'genre';
 
   if (searchInput) searchInput.value = "";
   if (searchInputMobile) searchInputMobile.value = "";
-  if (searchInputAlbum) searchInputAlbum.value = "";
-  if (searchInputMobileAlbum) searchInputMobileAlbum.value = "";
+  if (searchInputGenre) searchInputGenre.value = "";
+  if (searchInputMobileGenre) searchInputMobileGenre.value = "";
 }
 
 function renderTracks(list, targetEl) {
@@ -272,7 +279,7 @@ function renderTracks(list, targetEl) {
   targetEl.innerHTML = "";
   list.forEach(function(t) {
     var tr = document.createElement("tr");
-    var activeCls = (current && current.id === t.id && current.album === t.album) ? "active-track" : "";
+    var activeCls = (current && current.id === t.id && current.genre === t.genre) ? "active-track" : "";
     tr.className = "cursor-pointer hover:bg-gray-700/30 transition-colors duration-150 " + activeCls;
 
     tr.innerHTML = '\
@@ -282,7 +289,7 @@ function renderTracks(list, targetEl) {
           <img src="' + t.cover + '" class="track-cover" onerror="this.src=\'https://via.placeholder.com/96\'" />\
           <div class="track-details">\
             <div class="track-title" title="' + escapeHtml(t.title) + '">' + escapeHtml(t.title) + '</div>\
-            <div class="track-artist">' + escapeHtml(t.artist) + '</div>\
+            <div class="track-artist">' + escapeHtml(t.artist) + ' - ' + escapeHtml(t.album) + '</div>\
           </div>\
         </div>\
       </td>\
@@ -293,7 +300,7 @@ function renderTracks(list, targetEl) {
     };
 
     tr.ondblclick = function() {
-      if (current && current.id === t.id && current.album === t.album && isPlaying) {
+      if (current && current.id === t.id && current.genre === t.genre && isPlaying) {
         audio.pause();
         if (playBtn) playBtn.innerHTML = '<i class="fas fa-play"></i>';
         isPlaying = false;
@@ -309,7 +316,7 @@ function renderTracks(list, targetEl) {
 function toggleFavorite(track) {
   console.log("Toggling favorite for track:", track);
   console.log("Current favorites:", favorites);
-  var idx = favorites.findIndex(function(f){ return f.id === track.id && f.album === track.album; });
+  var idx = favorites.findIndex(function(f){ return f.id === track.id && f.genre === track.genre; });
   if (idx === -1) {
     favorites.push({...track});
     console.log("Added to favorites:", track);
@@ -320,20 +327,20 @@ function toggleFavorite(track) {
   saveFavorites();
   if (currentView === 'favoritos') showFavorites();
   else if (currentView === 'welcome') showWelcome();
-  else if (currentView === 'album') loadAlbum(albumName);
+  else if (currentView === 'genre') loadGenre(genreName);
 }
 
 function showFavorites() {
   currentView = 'favoritos';
   if (welcomeSection) welcomeSection.classList.remove("hidden");
-  if (albumSection) albumSection.classList.add("hidden");
+  if (genreSection) genreSection.classList.add("hidden");
   displayedTracks = favorites.slice();
   renderTracks(displayedTracks, trackListEl);
 
   if (searchInput) searchInput.value = "";
   if (searchInputMobile) searchInputMobile.value = "";
-  if (searchInputAlbum) searchInputAlbum.value = "";
-  if (searchInputMobileAlbum) searchInputMobileAlbum.value = "";
+  if (searchInputGenre) searchInputGenre.value = "";
+  if (searchInputMobileGenre) searchInputMobileGenre.value = "";
 }
 
 function loadTrack(track) {
@@ -353,15 +360,15 @@ function loadTrack(track) {
   localStorage.setItem("dp_lastTrack", JSON.stringify({ id: track.id }));
   if (currentView === 'welcome' || currentView === 'favoritos' || currentView === 'search') {
     renderTracks(displayedTracks, trackListEl);
-  } else if (currentView === 'album') {
-    renderTracks(displayedTracks, albumTrackListEl);
+  } else if (currentView === 'genre') {
+    renderTracks(displayedTracks, genreTrackListEl);
   }
   updateFavUI();
 }
 
 function playTrack(track) {
   if (!track) return;
-  if (!current || current.id !== track.id || current.album !== track.album) loadTrack(track);
+  if (!current || current.id !== track.id || current.genre !== track.genre) loadTrack(track);
   audio.play().then(function(){
     isPlaying = true;
     if (playBtn) playBtn.innerHTML = '<i class="fas fa-pause"></i>';
@@ -396,12 +403,12 @@ if (document.getElementById("nextBtn")) {
     if (!displayedTracks.length) return;
     if (isShuffling) {
       var next = getRandomTrack();
-      while (next && current && next.id === current.id && next.album === current.album && displayedTracks.length > 1) {
+      while (next && current && next.id === current.id && next.genre === current.genre && displayedTracks.length > 1) {
         next = getRandomTrack();
       }
       playTrack(next);
     } else {
-      var idx = displayedTracks.findIndex(function(t){ return t.id === (current && current.id) && t.album === (current && current.album); });
+      var idx = displayedTracks.findIndex(function(t){ return t.id === (current && current.id) && t.genre === (current && current.genre); });
       var next = displayedTracks[(idx + 1) % displayedTracks.length];
       playTrack(next);
     }
@@ -413,12 +420,12 @@ if (document.getElementById("prevBtn")) {
     if (!displayedTracks.length) return;
     if (isShuffling) {
       var prev = getRandomTrack();
-      while (prev && current && prev.id === current.id && prev.album === current.album && displayedTracks.length > 1) {
+      while (prev && current && prev.id === current.id && prev.genre === current.genre && displayedTracks.length > 1) {
         prev = getRandomTrack();
       }
       playTrack(prev);
     } else {
-      var idx = displayedTracks.findIndex(function(t){ return t.id === (current && current.id) && t.album === (current && current.album); });
+      var idx = displayedTracks.findIndex(function(t){ return t.id === (current && current.id) && t.genre === (current && current.genre); });
       var prev = displayedTracks[(idx - 1 + displayedTracks.length) % displayedTracks.length];
       playTrack(prev);
     }
@@ -440,8 +447,8 @@ if (footerFavBtn) {
       updateFavUI();
       if (currentView === 'welcome' || currentView === 'favoritos' || currentView === 'search') {
         renderTracks(displayedTracks, trackListEl);
-      } else if (currentView === 'album') {
-        renderTracks(displayedTracks, albumTrackListEl);
+      } else if (currentView === 'genre') {
+        renderTracks(displayedTracks, genreTrackListEl);
       }
     } else {
       console.warn("No current track selected");
@@ -511,8 +518,8 @@ function normalizeText(text) {
 function applySearch(term) {
   if (!term || term.trim() === "") {
     if (currentView === 'search') {
-      if (albumName) {
-        loadAlbum(albumName);
+      if (genreName) {
+        loadGenre(genreName);
       } else {
         showWelcome();
       }
@@ -527,14 +534,15 @@ function applySearch(term) {
   displayedTracks = allTracks.filter(function(t) {
     var title = normalizeText(t.title || "");
     var artist = normalizeText(t.artist || "");
+    var album = normalizeText(t.album || "");
     return terms.every(function(word) {
-      return title.includes(word) || artist.includes(word);
+      return title.includes(word) || artist.includes(word) || album.includes(word);
     });
   });
 
   currentView = 'search';
   if (welcomeSection) welcomeSection.classList.remove("hidden");
-  if (albumSection) albumSection.classList.add("hidden");
+  if (genreSection) genreSection.classList.add("hidden");
   renderTracks(displayedTracks, trackListEl);
 }
 
@@ -554,8 +562,8 @@ function setupSearchInput(input) {
 
 setupSearchInput(searchInput);
 setupSearchInput(searchInputMobile);
-setupSearchInput(searchInputAlbum);
-setupSearchInput(searchInputMobileAlbum);
+setupSearchInput(searchInputGenre);
+setupSearchInput(searchInputMobileGenre);
 
 if (favNav) {
   favNav.onclick = function() {
@@ -574,7 +582,7 @@ if (audio) {
   audio.onplay = function() {
     if (current) {
       localStorage.setItem("dp_lastTrack", JSON.stringify({ id: current.id }));
-      localStorage.setItem("dp_lastAlbum", current.album || albumName || "");
+      localStorage.setItem("dp_lastGenre", current.genre || genreName || "");
     }
     saveFavorites();
   };
@@ -593,24 +601,9 @@ if (hamburger) {
             <ul class="space-y-3 text-sm">\
               <li class="flex items-center gap-3 hover:text-white cursor-pointer" id="mInicio">🏠 Inicio</li>';
 
-    var artistNames = Object.keys(artists).sort();
-    for (var artist of artistNames) {
-      if (artists.hasOwnProperty(artist)) {
-        navHtml += '\
-          <li><details class="hover:text-white">\
-            <summary class="flex items-center gap-3 text-sm">' + escapeHtml(artist) + '</summary>\
-            <ul class="text-sm">';
-        artists[artist].forEach(function(alb) {
-          var icon = alb.name === "Formula1" ? "💿" :
-                   alb.name === "Formula2" ? "💿" :
-                   alb.name === "UnVeranoSinTi" ? "💿" :
-                   alb.name === "TuUltimaCancion" ? "💿" :
-                   alb.name === "CrystalCastles" ? "💿" :
-                   alb.name === "Formula3" ? "💿" : "💿";
-          navHtml += '<li><a href="?album=' + alb.name + '" class="hover:text-white">' + icon + ' ' + escapeHtml(alb.name) + '</a></li>';
-        });
-        navHtml += '</ul></details></li>';
-      }
+    var genreNames = Object.keys(genresTracks).sort();
+    for (var genre of genreNames) {
+      navHtml += '<li><a href="?genre=' + genre + '" class="hover:text-white">🎵 ' + escapeHtml(genre) + '</a></li>';
     }
 
     navHtml += '\
@@ -663,11 +656,11 @@ function escapeHtml(unsafe) {
 (async function init(){
   loadFavorites();
   loadShuffleState();
-  await loadAllAlbums();
+  await loadAllGenres();
 
-  var lastAlbum = localStorage.getItem("dp_lastAlbum");
-  if (albumName) {
-    loadAlbum(albumName);
+  var lastGenre = localStorage.getItem("dp_lastGenre");
+  if (genreName) {
+    loadGenre(genreName);
   } else {
     showWelcome();
     if (allTracks.length > 0 && !current) {
