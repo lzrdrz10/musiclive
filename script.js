@@ -1,6 +1,5 @@
 var urlParams = new URLSearchParams(window.location.search);
 var genreName = urlParams.get('genre');
-
 var audio = document.getElementById("audio");
 var welcomeSection = document.getElementById("welcomeSection");
 var genreSection = document.getElementById("albumSection");
