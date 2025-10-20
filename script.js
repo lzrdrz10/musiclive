@@ -118,6 +118,7 @@ async function loadAllGenres() {
     { name: "Dark Electronic", folder: "DarkElectronic", jsonFile: "darkelectronic.json" },
     { name: "Grupera", folder: "Grupera", jsonFile: "grupera.json" },
     { name: "Phonk", folder: "Phonk", jsonFile: "phonk.json" },
+    { name: "Regional Mexicano", folder: "RegionalMexicano", jsonFile: "regional.json" }
     { name: "Regueton", folder: "Regueton", jsonFile: "regueton.json" }
   ];
 
