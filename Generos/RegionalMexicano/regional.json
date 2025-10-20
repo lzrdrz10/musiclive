@@ -1,0 +1,27 @@
+[
+{
+    "id": 1,
+    "title": "Bidi bidi bom bom",
+    "artist": "Selena Quintanilla",
+    "album": "Amor prohibido",
+    "duration": 240,
+    "url": "http://musiclive.lzplayhd.online/musicas/Bidi%20Bidi%20Bom%20Bom%20%5BaP9mKAZUnhI%5D.mp3",
+    "cover": "assets/portadas/selenaquintanilla.jpeg"
+  },{
+    "id": 2,
+    "title": "Como la flor",
+    "artist": "Selena Quintanilla",
+    "album": "Sin Album",
+    "duration": 240,
+    "url": "http://musiclive.lzplayhd.online/musicas/Selena%20-%20Como%20La%20Flor%20Letra%20%5BuNGIl8nHtzE%5D.mp3",
+    "cover": "assets/portadas/selenaquintanilla.jpeg"
+  },{
+    "id": 3,
+    "title": "El chico del apartamento 512",
+    "artist": "Selena Quintanilla",
+    "album": "Amor prohibido",
+    "duration": 240,
+    "url": "http://musiclive.lzplayhd.online/musicas/Selena%20-%20El%20Chico%20del%20Apartamento%20512%20(letra)%20%5Bulo8kLndNME%5D.mp3",
+    "cover": "assets/portadas/selenaquintanilla.jpeg"
+  }
+  ]
