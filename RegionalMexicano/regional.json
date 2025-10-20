@@ -23,5 +23,21 @@
     "duration": 240,
     "url": "http://musiclive.lzplayhd.online/musicas/Selena%20-%20El%20Chico%20del%20Apartamento%20512%20(letra)%20%5Bulo8kLndNME%5D.mp3",
     "cover": "assets/portadas/selenaquintanilla.jpeg"
+  },{
+    "id": 4,
+    "title": "Amor fugaz",
+    "artist": "Los Del Limit",
+    "album": "Desconocido",
+    "duration": 240,
+    "url": "http://musiclive.lzplayhd.online/musicas/Amor%20Fugaz%20-%20(Video%20Oficial)%20-%20Los%20Del%20Limit%20-%20DEL%20Records%202021%20%5BLfGNBmLHsR4%5D.mp3",
+    "cover": "assets/portadas/youtube.jpeg"
+  },{
+    "id": 5,
+    "title": "El mayor de Los Ranas",
+    "artist": "Víctor Valverde, JR Torres",
+    "album": "Con Tokio",
+    "duration": 240,
+    "url": "http://musiclive.lzplayhd.online/musicas/Victor%20Valverde%20x%20JR%20Torres%20-%20El%20Mayor%20de%20Los%20Ranas%20(Letra)%20%5BOKC0Rzc_6Tw%5D.mp3",
+    "cover": "assets/portadas/youtube.jpeg"
   }
   ]
