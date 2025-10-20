@@ -1,0 +1,147 @@
+[
+{
+    "id": 1,
+    "title": "You Don't Know",
+    "artist": "Cashis, Eminem, 50 Cent, Lloyd Banks",
+    "album": "Eminem Presents: The Re-Up",
+    "duration": 240,
+    "url": "http://musiclive.lzplayhd.online/musicas/50%20Cent%2C%20EMIN%C6%8EM%2C%20Ca_his%20%26%20Lloyd%20Banks%20-%20You%20Don't%20Know%20%5B-oMFjVz48sc%5D.mp3",
+    "cover": "assets/portadas/eminem.jpeg"
+  },{
+    "id": 2,
+    "title": "A la PM Puse en Alto",
+    "artist": "Doble ONE Flow Letal",
+    "album": "A la PM Puse en Alto",
+    "duration": 240,
+    "url": "http://musiclive.lzplayhd.online/musicas/A%20LA%20PM%20PUSE%20EN%20ALTO%F0%9F%92%80(EL%20SIE7E)%20-%20Doble%20ONE%20%40WarehouseMusicTV%20%5BDgbLFa9WvTA%5D.mp3",
+    "cover": "assets/portadas/dobleone.jpeg"
+  },{
+    "id": 3,
+    "title": "Bombos y Tarolas",
+    "artist": "Cartel de Santa",
+    "album": "Sincopa",
+    "duration": 240,
+    "url": "http://musiclive.lzplayhd.online/musicas/Bombos%20y%20Tarolas%20(Letra_Lyrics)%20%5BNgC1oRedei0%5D.mp3",
+    "cover": "assets/portadas/carteldesanta.jpeg"
+  },{
+    "id": 5,
+    "title": "Si te vienen a contar",
+    "artist": "Cartel de Santa",
+    "album": "Golpe avisa",
+    "duration": 240,
+    "url": "http://musiclive.lzplayhd.online/musicas/Cartel%20De%20Santa-Si%20Te%20Vienen%20a%20Contar%20(Letra_Lyrics)%20%5BizolV0p49aQ%5D.mp3",
+    "cover": "assets/portadas/carteldesanta.jpeg"
+  },{
+    "id": 6,
+    "title": "Burbujas de Cristal",
+    "artist": "Cartel de Santa",
+    "album": "Desconocido",
+    "duration": 240,
+    "url": "http://musiclive.lzplayhd.online/musicas/Cartel%20de%20Santa%20%26%20Millonario%20-%20Burbujas%20de%20Cristal%20(Video%20Oficial)%20%5BadT7-rjty3s%5D.mp3",
+    "cover": "assets/portadas/carteldesanta.jpeg"
+  },{
+    "id": 7,
+    "title": "Todas mueren por mi",
+    "artist": "Cartel de Santa",
+    "album": "Cártel de Santa",
+    "duration": 240,
+    "url": "http://musiclive.lzplayhd.online/musicas/Cartel%20de%20Santa%20-%20Todas%20Mueren%20por%20M%C3%AD%20%5BpMF0qLoAYUA%5D.mp3",
+    "cover": "assets/portadas/carteldesanta.jpeg"
+  },{
+    "id": 9,
+    "title": "Crónica Babilonia",
+    "artist": "Cartel de Santa, Basi de Efecto, Mr. Pomel",
+    "album": "Vol. II",
+    "duration": 240,
+    "url": "http://musiclive.lzplayhd.online/musicas/Cr%C3%B3nica%20Babilonia%20%5BpHdp5V-U8Fo%5D.mp3",
+    "cover": "assets/portadas/carteldesanta.jpeg"
+  },{
+    "id": 10,
+    "title": "Cuentos Pa Morros",
+    "artist": "Akwid",
+    "album": "E.S.L",
+    "duration": 240,
+    "url": "http://musiclive.lzplayhd.online/musicas/Cuentos%20Pa'%20Morros%20%5BfCYzEhshzpk%5D.mp3",
+    "cover": "assets/portadas/akwid.jpeg"
+  },{
+    "id": 11,
+    "title": "Culón culito",
+    "artist": "Cartel de Santa",
+    "album": "Desconocido",
+    "duration": 240,
+    "url": "http://musiclive.lzplayhd.online/musicas/Cul%C3%B3n%20Culito%20%5B-3noyDXcHNs%5D.mp3",
+    "cover": "assets/portadas/carteldesanta.jpeg"
+  },{
+    "id": 12,
+    "title": "Éxtasis",
+    "artist": "Cartel de Santa",
+    "album": "Me Atizo Macizo Tour 2012 En Vivo Desde el D.F",
+    "duration": 240,
+    "url": "http://musiclive.lzplayhd.online/musicas/EXTASIS%20-%20Millonario%20FT%20%40elcarteldesantatv%20(Audio%20Oficial)%20%5Bz_LWYDWDP34%5D.mp3",
+    "cover": "assets/portadas/carteldesanta.jpeg"
+  },{
+    "id": 13,
+    "title": "Without Me",
+    "artist": "Eminem",
+    "album": "The Eminem Show",
+    "duration": 240,
+    "url": "http://musiclive.lzplayhd.online/musicas/Eminem%20-%20Without%20Me%20(Lyrics)%20%5B-8xhmV3JoG4%5D.mp3",
+    "cover": "assets/portadas/eminem.jpeg"
+  },{
+    "id": 14,
+    "title": "Cumbia que retumba",
+    "artist": "Kalako Parga Oficial",
+    "album": "Reyes de la Cumbia",
+    "duration": 240,
+    "url": "http://musiclive.lzplayhd.online/musicas/Kalako%20Parga%20ft%20Chikis%20Ra%20-%20CUMBIA%20QUE%20RETUMBA%20(Video%20Oficial)%20%5B28eGJzOQbro%5D.mp3",
+    "cover": "assets/portadas/kalako.jpeg"
+  },{
+    "id": 15,
+    "title": "Los Reyes de la Cumbia Rap",
+    "artist": "Kalako Parga Oficial, Chikis Ra",
+    "album": "Los Reyes de la Cumbia Rap",
+    "duration": 240,
+    "url": "http://musiclive.lzplayhd.online/musicas/Kalako%20Parga%20ft%20Chikis%20Ra%20-%20Los%20reyes%20de%20la%20cumbia%20rap%20(Video%20Oficial)%20Parga%20en%20el%20beat%20%5BCK86MllxznE%5D.mp3",
+    "cover": "assets/portadas/kalako.jpeg"
+  },{
+    "id": 16,
+    "title": "Chingo de cheve",
+    "artist": "Millonario",
+    "album": "Millonario sin corona",
+    "duration": 240,
+    "url": "http://musiclive.lzplayhd.online/musicas/Millonario%20Chingo%20de%20Cheve%20%5B4Ft8L2503Bo%5D.mp3",
+    "cover": "assets/portadas/millonario.jpeg"
+  },{
+    "id": 17,
+    "title": "Lírica y metralla",
+    "artist": "Millonario & W. Corona",
+    "album": "Los jefes: Banda sonora de la película",
+    "duration": 240,
+    "url": "http://musiclive.lzplayhd.online/musicas/Millonario%20L%C3%ADrica%20y%20Metrall%C3%A1%20%5BY0vqDhi1EXE%5D.mp3",
+    "cover": "assets/portadas/millonario.jpeg"
+  },{
+    "id": 18,
+    "title": "Más flow más cash",
+    "artist": "Millonario & W. Corona",
+    "album": "Los jefes: Banda sonora de la película",
+    "duration": 240,
+    "url": "http://musiclive.lzplayhd.online/musicas/Millonario%20M%C3%A1s%20Flow%20M%C3%A1s%20Cash%20(feat.%20Cartel%20de%20Santa)%20%5BW4_4rOddHKo%5D.mp3",
+    "cover": "assets/portadas/millonario.jpeg"
+  },{
+    "id": 19,
+    "title": "Morena",
+    "artist": "Tornillo",
+    "album": "Morena",
+    "duration": 240,
+    "url": "http://musiclive.lzplayhd.online/musicas/Morena%20%5BsUdFg-Z_G5s%5D.mp3",
+    "cover": "assets/portadas/tornillo.jpeg"
+  },{
+    "id": 20,
+    "title": "Desvielados",
+    "artist": "Remik González, Beejay",
+    "album": "IceWeed-Man",
+    "duration": 240,
+    "url": "http://musiclive.lzplayhd.online/musicas/Remik%20Gonz%C3%A1lez%20-%20Desvielados%20Ft.%20BeeJay%20(Sticker%20Version)%20%5Bez9oE0pd59Q%5D.mp3",
+    "cover": "assets/portadas/remik.jpeg"
+  }
+  ]
