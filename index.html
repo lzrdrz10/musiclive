@@ -7,7 +7,7 @@
 <link rel="apple-touch-icon" href="icon-192x192.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icon-180x180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content incredibile="black-translucent">
 <title>MusicLive</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
@@ -43,16 +43,17 @@
   details[open] > summary::before { transform: rotate(90deg); }
   details > ul { margin-top: 8px; margin-left: 20px; }
   details > ul > li { padding: 4px 0; }
-  /* Updated table styles */
   table {
     border-collapse: separate;
     border-spacing: 0;
     width: 100%;
-    table-layout: auto; /* Ensure table fits container */
+    table-layout: auto;
   }
   .table-container {
-    overflow-x: hidden; /* Prevent horizontal scrolling */
+    overflow-x: hidden;
+    overflow-y: auto; /* Added for vertical scroll in track tables */
     width: 100%;
+    max-height: 58vh;
   }
   thead th {
     padding: 12px 16px;
@@ -102,7 +103,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     position: relative;
-    max-width: 100%; /* Ensure title fits within cell */
+    max-width: 100%;
   }
   .track-title::after {
     content: '';
@@ -119,7 +120,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 100%; /* Ensure artist fits within cell */
+    max-width: 100%;
   }
   tbody tr:hover .track-info::before {
     content: '▶';
@@ -143,26 +144,94 @@
       font-size: 0.8rem;
     }
     th:nth-child(3), td:nth-child(3) {
-      display: none; /* Hide duration on mobile */
+      display: none;
     }
   }
-  
- .pt-20 {
-    padding-top: 1rem !important;
-}.pb-32 {
-    padding-bottom: 7rem !important;
+  .pt-20 { padding-top: 1rem !important; }
+  .pb-32 { padding-bottom: 7rem !important; }
+  .p-4 { padding: 0rem !important; }
+  .rounded-lg { border-radius: 0rem !important; }
+  .mt-6 { margin-top: 0.5rem !important; }
+  #nowPlayingModal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 60;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem;
+    overflow: hidden;
+  }
+  #nowPlayingModal .large-cover {
+    max-width: 80%;
+    max-height: 50vh;
+    border-radius: 1rem;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+  }
+  #nowPlayingModal .song-info {
+    text-align: center;
+    margin: 1rem 0;
+  }
+  #nowPlayingModal .controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  #nowPlayingModal .progress-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  #nowPlayingModal button {
+    font-size: 1.5rem;
+    padding: 0.75rem;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    transition: background 0.2s;
+  }
+  #nowPlayingModal button:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  #nowPlayingModal #repeatBtn.active, #nowPlayingModal #shuffleLarge.active {
+    color: #3b82f6;
+  }
+  #nowPlayingModal #closeModal {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 1.2rem;
+    padding: 0.5rem;
+    background: transparent;
+  }
+  @media (max-width: 640px) {
+    #nowPlayingModal {
+      padding: 1rem;
+    }
+    #nowPlayingModal .large-cover {
+      max-height: 40vh;
+    }
+    #nowPlayingModal button {
+      font-size: 1.2rem;
+      padding: 0.5rem;
+    }
+    #nowPlayingModal .controls {
+      gap: 1rem;
+    }
+  }
+  /* Fix scrolling in desktop sidebar nav */
+  nav.flex-1 {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+ @media (max-width: 640px) {
+  .h-full {
+    height: 75% !important;
+  }
 }
-.p-4 {
-    padding: 0rem !important;
-}
-.rounded-lg {
-    border-radius: 0rem !important;
-}
-.mt-6 {
-    margin-top: 0.5rem !important;
-}
-
-
 </style>
 </head>
 <body class="min-h-screen">
@@ -185,10 +254,10 @@
   <div class="text-xs opacity-70">© Tu estudio · Demo</div>
 </aside>
 
-<!-- Mobile sidebar overlay container -->
+<!-- celular sidebar overlay container -->
 <div id="mobileSidebarContainer" class="md:hidden"></div>
 
-<!-- Top bar (mobile) -->
+<!-- Top bar (celular) -->
 <header class="md:hidden flex items-center justify-between px-4 py-3 bg-gradient-to-r from-black via-gray-900 to-gray-800 sticky top-0 z-30">
   <div class="flex items-center gap-3">
     <button id="hamburger" class="p-2 rounded hover:bg-white/5">☰</button>
@@ -252,12 +321,12 @@
 </main>
 
 <!-- Now Playing Bar -->
-<footer class="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-black via-gray-900 to-gray-800 p-3 border-t border-gray-700/30 z-50">
+<footer id="nowPlayingBar" class="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-black via-gray-900 to-gray-800 p-3 border-t border-gray-700/30 z-50">
   <div class="max-w-[1200px] mx-auto flex items-center justify-between gap-4">
-    <div class="flex-shrink-0">
+    <div id="coverArea" class="flex-shrink-0 cursor-pointer">
       <img id="currentCover" src="https://via.placeholder.com/64" class="w-12 h-12 sm:w-14 sm:h-14 rounded" />
     </div>
-    <div class="flex-1 min-w-0 overflow-hidden">
+    <div id="infoArea" class="flex-1 min-w-0 overflow-hidden cursor-pointer">
       <div class="relative">
         <div class="animate-marquee whitespace-nowrap text-sm sm:text-base font-semibold" id="currentTitle">
           Sin reproducción
@@ -294,6 +363,45 @@
   </div>
   <audio id="audio"></audio>
 </footer>
+
+<!-- Now Playing Modal -->
+<div id="nowPlayingModal">
+  <button id="closeModal" class="hover:bg-white/5">✕</button>
+  <div class="flex-1 flex items-center justify-center">
+    <img id="largeCover" src="https://via.placeholder.com/300" class="large-cover" alt="Large Cover">
+  </div>
+  <div class="song-info">
+    <h2 id="largeTitle" class="text-2xl font-bold">Sin reproducción</h2>
+    <p id="largeArtist" class="text-lg opacity-70">Desconocido</p>
+  </div>
+  <div class="progress-container">
+    <div class="w-full flex items-center gap-2">
+      <div id="largeCurrentTime" class="text-sm opacity-60 w-12">0:00</div>
+      <div id="largeProgressBar" class="relative h-1 bg-gray-700 rounded flex-1 cursor-pointer">
+        <div id="largeProgressFill" class="absolute left-0 top-0 bottom-0 bg-white/60 rounded" style="width: 0%;"></div>
+      </div>
+      <div id="largeTotalTime" class="text-sm opacity-60 w-12 text-right">0:00</div>
+    </div>
+  </div>
+  <div class="controls">
+    <button id="shuffleLarge" class="shuffleBtn">
+      <i class="fas fa-random"></i>
+    </button>
+    <button id="prevLarge">
+      <i class="fas fa-backward"></i>
+    </button>
+    <button id="playPauseLarge">
+      <i class="fas fa-play"></i>
+    </button>
+    <button id="nextLarge">
+      <i class="fas fa-forward"></i>
+    </button>
+    <button id="repeatBtn" class="repeatBtn">
+      <i class="fas fa-redo"></i>
+    </button>
+    <button id="favLarge" class="favBtn">☆</button>
+  </div>
+</div>
 
 <script src="script.js"></script>
 </body>
