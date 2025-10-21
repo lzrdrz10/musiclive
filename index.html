@@ -227,11 +227,12 @@
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
- @media (max-width: 640px) {
-  .h-full {
-    height: 75% !important;
+ @media (max-width: 768px) {
+  main {
+    padding-bottom: 9rem !important; /* deja espacio para el footer */
   }
 }
+
 </style>
 </head>
 <body class="min-h-screen">
@@ -246,10 +247,11 @@
     <ul class="space-y-3 text-sm" id="sidebarNav">
       <li class="flex items-center gap-3 hover:text-white cursor-pointer" data-view="welcome">🏠 Inicio</li>
       <li class="pt-4 border-t border-gray-800 text-xs opacity-80">Listas</li>
-      <li class="flex items-center gap-3 hover:text-white cursor-pointer" id="favNav">
-        ⭐ Favoritos <span id="favCount" class="ml-2 text-xs opacity-70">0</span>
-      </li>
+      <br>
+	<br>
+	<br>
     </ul>
+	
   </nav>
   <div class="text-xs opacity-70">© Tu estudio · Demo</div>
 </aside>
@@ -263,10 +265,15 @@
     <button id="hamburger" class="p-2 rounded hover:bg-white/5">☰</button>
     <div class="font-semibold text-lg">DarkPlayer</div>
   </div>
-  <div class="flex-1 ml-3">
+  <div class="flex-1 mx-3">
     <input id="searchTrackMobile" type="text" placeholder="Buscar canción o artista..." class="w-full px-3 py-2 rounded bg-gray-800/60 text-sm outline-none focus:ring-2 focus:ring-white/20" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="none" inputmode="text" />
   </div>
+  <button id="favNav" class="flex items-center gap-1 text-sm px-2 py-1 rounded hover:bg-white/5 cursor-pointer">
+    ⭐ <span class="hidden sm:inline">Favoritos</span>
+    <span id="favCount" class="ml-1 text-xs opacity-70">0</span>
+  </button>
 </header>
+
 
 <!-- Main area -->
 <main class="md:ml-72 p-6 pb-32 md:pb-36 pt-20 md:pt-6">
@@ -391,7 +398,7 @@
       <i class="fas fa-backward"></i>
     </button>
     <button id="playPauseLarge">
-      <i class="fas fa-play"></i>
+      <i class="fas fa-pause"></i>
     </button>
     <button id="nextLarge">
       <i class="fas fa-forward"></i>
