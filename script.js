@@ -30,12 +30,30 @@ var closeSidebarBtn = document.getElementById("closeSidebarBtn");
 var shuffleBtn = document.getElementById("shuffleBtn");
 var sidebarNav = document.getElementById("sidebarNav");
 var footerFavBtn = document.getElementById("footerFavBtn");
+var nowPlayingModal = document.getElementById("nowPlayingModal");
+var closeModal = document.getElementById("closeModal");
+var largeCover = document.getElementById("largeCover");
+var largeTitle = document.getElementById("largeTitle");
+var largeArtist = document.getElementById("largeArtist");
+var largeCurrentTime = document.getElementById("largeCurrentTime");
+var largeTotalTime = document.getElementById("largeTotalTime");
+var largeProgressBar = document.getElementById("largeProgressBar");
+var largeProgressFill = document.getElementById("largeProgressFill");
+var shuffleLarge = document.getElementById("shuffleLarge");
+var prevLarge = document.getElementById("prevLarge");
+var playPauseLarge = document.getElementById("playPauseLarge");
+var nextLarge = document.getElementById("nextLarge");
+var repeatBtn = document.getElementById("repeatBtn");
+var favLarge = document.getElementById("favLarge");
+var coverArea = document.getElementById("coverArea");
+var infoArea = document.getElementById("infoArea");
 
 var tracks = [];
 var displayedTracks = [];
 var current = null;
 var isPlaying = false;
 var isShuffling = false;
+var isRepeating = false;
 var favorites = [];
 var currentView = 'welcome';
 var previousView = null;
@@ -76,6 +94,7 @@ function updateFavUI() {
     footerFavBtn.textContent = isFav ? "★" : "☆";
     footerFavBtn.classList.toggle("active", isFav);
   }
+  syncModal();
 }
 
 function loadShuffleState() {
@@ -95,12 +114,31 @@ function saveShuffleState() {
 
 function updateShuffleUI() {
   if (shuffleBtn) {
-    if (isShuffling) {
-      shuffleBtn.classList.add("active");
-    } else {
-      shuffleBtn.classList.remove("active");
-    }
+    shuffleBtn.classList.toggle("active", isShuffling);
   }
+  syncModal();
+}
+
+function loadRepeatState() {
+  try {
+    isRepeating = JSON.parse(localStorage.getItem("dp_repeat") || "false");
+    updateRepeatUI();
+  } catch (e) {
+    console.error("Error loading repeat state:", e);
+    isRepeating = false;
+  }
+}
+
+function saveRepeatState() {
+  localStorage.setItem("dp_repeat", JSON.stringify(isRepeating));
+  updateRepeatUI();
+}
+
+function updateRepeatUI() {
+  if (repeatBtn) {
+    repeatBtn.classList.toggle("active", isRepeating);
+  }
+  syncModal();
 }
 
 function getRandomTrack() {
@@ -110,95 +148,76 @@ function getRandomTrack() {
 }
 
 async function loadAllGenres() {
-  var genres = [
-    { name: "Bachata", folder: "Bachata", jsonFile: "bachata.json" },
-    { name: "Corridos", folder: "Corridos", jsonFile: "corridos.json" },
-    { name: "Cumbias", folder: "Cumbias", jsonFile: "cumbias.json" },
-    { name: "Dark Electronic", folder: "DarkElectronic", jsonFile: "darkelectronic.json" },
-    { name: "Grupera", folder: "Grupera", jsonFile: "grupera.json" },
-    { name: "Phonk", folder: "Phonk", jsonFile: "phonk.json" },
-    { name: "Regional Mexicano", folder: "RegionalMexicano", jsonFile: "regional.json" },
-    { name: "Regueton", folder: "Regueton", jsonFile: "regueton.json" },
-    { name: "Merengue", folder: "Merengue", jsonFile: "merengue.json" },
-    { name: "Sandunga De La Chuca", folder: "Sandungueo", jsonFile: "sandungueo.json" },
-    { name: "Hip Hop Rap", folder: "HipHop", jsonFile: "hiphop.json" }
-  ];
-
   allTracks = [];
   genresTracks = {};
   artists = {};
 
-  for (let genre of genres) {
-    try {
-      var jsonUrl = `https://raw.githubusercontent.com/lzrdrz10/musiclive/main/${genre.folder}/${genre.jsonFile}`;
-      console.log("Intentando cargar JSON:", jsonUrl);
-      var res = await fetch(jsonUrl);
-      if (!res.ok) throw new Error(`Error al cargar JSON para ${genre.name}: ${res.status}`);
-      var data = await res.json();
+  try {
+    const response = await fetch('https://api.github.com/repos/lzrdrz10/musiclive/contents/Generos');
+    const folders = await response.json();
+    const genres = folders.filter(f => f.type === 'dir').map(f => ({ name: f.name, folder: f.name }));
 
-      if (!Array.isArray(data) || data.length === 0) throw new Error(`JSON vacío o inválido para ${genre.name}`);
+    for (let genre of genres) {
+      try {
+        const res = await fetch(`https://api.github.com/repos/lzrdrz10/musiclive/contents/Generos/${genre.folder}`);
+        const files = await res.json();
+        const mp3s = files.filter(f => f.name.endsWith('.mp3'));
+        const coverUrl = "https://raw.githubusercontent.com/lzrdrz10/musiclive/main/portadas/youtube.jpeg";
 
-      var tracks = data.map(function(t, idx) {
-        var coverUrl = t.cover && t.cover.startsWith("assets/portadas/")
-          ? `https://raw.githubusercontent.com/lzrdrz10/musiclive/main/portadas/${t.cover.replace("assets/portadas/", "")}`
-          : t.cover || "https://via.placeholder.com/96";
-        
-        // Verify cover URL accessibility
-        return fetch(coverUrl, { method: 'HEAD' })
-          .then(res => {
-            if (!res.ok) {
-              console.warn(`Portada no encontrada para ${t.title}: ${coverUrl}, usando placeholder`);
-              coverUrl = "https://via.placeholder.com/96";
-            }
+        const tracks = mp3s.map((mp3, idx) => {
+          const filename = mp3.name;
+          const decoded = decodeURIComponent(filename.replace(/%20/g, ' ').replace(/%5B/g, '[').replace(/%5D/g, ']'));
+          const match = decoded.match(/^(\d+)\.\s*(.+?)\s*-\s*(.+?)\s*\[(.+?)\]\.mp3$/);
+          if (match) {
             return {
-              id: t.id || idx + 1,
-              title: t.title || ("Pista " + (idx + 1)),
-              artist: t.artist || "Desconocido",
-              url: t.url || "",
-              duration: t.duration || 0,
-              album: t.album || "Desconocido",
+              id: parseInt(match[1]),
+              title: match[2].trim(),
+              artist: match[3].trim(),
+              url: `https://musiclive.lzplayhd.online/Generos/${genre.folder}/${encodeURIComponent(filename)}`,
+              duration: 0,
+              album: genre.name,
               cover: coverUrl,
               genre: genre.name
             };
-          })
-          .catch(e => {
-            console.warn(`Error verificando portada para ${t.title}: ${coverUrl}, usando placeholder`, e);
+          } else {
             return {
-              id: t.id || idx + 1,
-              title: t.title || ("Pista " + (idx + 1)),
-              artist: t.artist || "Desconocido",
-              url: t.url || "",
-              duration: t.duration || 0,
-              album: t.album || "Desconocido",
-              cover: "https://via.placeholder.com/96",
+              id: idx + 1,
+              title: decoded.replace('.mp3', '').trim(),
+              artist: "Desconocido",
+              url: `https://musiclive.lzplayhd.online/Generos/${genre.folder}/${encodeURIComponent(filename)}`,
+              duration: 0,
+              album: genre.name,
+              cover: coverUrl,
               genre: genre.name
             };
-          });
-      });
+          }
+        });
 
-      // Resolve all cover URL checks
-      tracks = await Promise.all(tracks);
-      genresTracks[genre.name] = tracks;
-      allTracks.push(...tracks);
+        tracks.sort((a, b) => a.id - b.id);
+        genresTracks[genre.name] = tracks;
+        allTracks.push(...tracks);
 
-      tracks.forEach(function(track) {
-        if (!artists[track.artist]) {
-          artists[track.artist] = [];
-        }
-        if (!artists[track.artist].some(a => a.name === track.album)) {
-          artists[track.artist].push({ name: track.album, genre: genre.name, coverFile: track.cover });
-        }
-      });
+        tracks.forEach(function(track) {
+          if (!artists[track.artist]) {
+            artists[track.artist] = [];
+          }
+          if (!artists[track.artist].some(a => a.name === track.album)) {
+            artists[track.artist].push({ name: track.album, genre: genre.name, coverFile: track.cover });
+          }
+        });
 
-    } catch (e) {
-      console.error(`Error cargando género ${genre.name}:`, e);
+      } catch (e) {
+        console.error(`Error cargando género ${genre.name}:`, e);
+      }
     }
+
+    console.log("Géneros cargados:", Object.keys(genresTracks));
+    console.log("Artistas encontrados:", Object.keys(artists));
+
+    renderSidebar();
+  } catch (e) {
+    console.error("Error cargando géneros:", e);
   }
-
-  console.log("Géneros cargados:", Object.keys(genresTracks));
-  console.log("Artistas encontrados:", Object.keys(artists));
-
-  renderSidebar();
 }
 
 function renderSidebar() {
@@ -208,7 +227,7 @@ function renderSidebar() {
   
   var genreNames = Object.keys(genresTracks).sort();
   for (var genre of genreNames) {
-    navHtml += '<li><a href="?genre=' + genre + '" class="hover:text-white">🎵 ' + escapeHtml(genre) + '</a></li>';
+    navHtml += '<li><a href="?genre=' + encodeURIComponent(genre) + '" class="hover:text-white">🎵 ' + escapeHtml(genre) + '</a></li>';
   }
 
   navHtml += '\
@@ -251,7 +270,7 @@ function loadGenre(name) {
   if (!name || !genresTracks[name]) {
     if (genreTitle) genreTitle.textContent = "Género no encontrado";
     if (genreArtist) genreArtist.textContent = "No disponible";
-    if (genreCover) genreCover.src = "https://via.placeholder.com/96";
+    if (genreCover) genreCover.src = "https://raw.githubusercontent.com/lzrdrz10/musiclive/main/portadas/youtube.jpeg";
     tracks = [];
     displayedTracks = [];
     renderTracks([], genreTrackListEl);
@@ -263,7 +282,7 @@ function loadGenre(name) {
   tracks = genresTracks[name];
   if (genreTitle) genreTitle.textContent = name;
   if (genreArtist) genreArtist.textContent = tracks[0].artist || "Varios Artistas";
-  if (genreCover) genreCover.src = tracks[0].cover || "https://via.placeholder.com/96";
+  if (genreCover) genreCover.src = tracks[0].cover || "https://raw.githubusercontent.com/lzrdrz10/musiclive/main/portadas/youtube.jpeg";
   if (genreTrackCount) genreTrackCount.textContent = tracks.length + " canciones";
   displayedTracks = tracks.slice();
   renderTracks(displayedTracks, genreTrackListEl);
@@ -293,7 +312,7 @@ function renderTracks(list, targetEl) {
       <td class="pl-4 py-3 align-middle">' + t.id + '</td>\
       <td>\
         <div class="track-info">\
-          <img src="' + t.cover + '" class="track-cover" onerror="this.src=\'https://via.placeholder.com/96\'" />\
+          <img src="' + t.cover + '" class="track-cover" onerror="this.src=\'https://raw.githubusercontent.com/lzrdrz10/musiclive/main/portadas/youtube.jpeg\'" />\
           <div class="track-details">\
             <div class="track-title" title="' + escapeHtml(t.title) + '">' + escapeHtml(t.title) + '</div>\
             <div class="track-artist">' + escapeHtml(t.artist) + ' - ' + escapeHtml(t.album) + '</div>\
@@ -347,7 +366,7 @@ function showFavorites() {
   if (searchInput) searchInput.value = "";
   if (searchInputMobile) searchInputMobile.value = "";
   if (searchInputGenre) searchInputGenre.value = "";
-  if (searchInputMobileGenre) searchInputMobileGenre.value = "";
+  if ( hairstyleInputMobileGenre) searchInputMobileGenre.value = "";
 }
 
 function loadTrack(track) {
@@ -357,7 +376,7 @@ function loadTrack(track) {
   if (currentCover) {
     currentCover.style.opacity = 0;
     setTimeout(function(){
-      currentCover.src = track.cover || "https://via.placeholder.com/64";
+      currentCover.src = track.cover || "https://raw.githubusercontent.com/lzrdrz10/musiclive/main/portadas/youtube.jpeg";
       currentCover.style.opacity = 1;
     }, 180);
   }
@@ -378,11 +397,9 @@ function playTrack(track) {
   if (!current || current.id !== track.id || current.genre !== track.genre) loadTrack(track);
   audio.play().then(function(){
     isPlaying = true;
-    if (playBtn) playBtn.innerHTML = '<i class="fas fa-pause"></i>';
   }).catch(function(e){
     console.error("Error playing audio:", e);
     isPlaying = true;
-    if (playBtn) playBtn.innerHTML = '<i class="fas fa-pause"></i>';
   });
 }
 
@@ -390,18 +407,30 @@ if (playBtn) {
   playBtn.onclick = function() {
     if (isPlaying) {
       audio.pause();
-      playBtn.innerHTML = '<i class="fas fa-play"></i>';
-      isPlaying = false;
     } else {
-      audio.play().then(function(){
-        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-        isPlaying = true;
-      }).catch(function(e){
+      audio.play().catch(function(e){
         console.error("Error playing audio:", e);
-        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-        isPlaying = true;
       });
     }
+  };
+}
+
+if (audio) {
+  audio.onplay = function() {
+    isPlaying = true;
+    if (playBtn) playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+    syncModal();
+    if (current) {
+      localStorage.setItem("dp_lastTrack", JSON.stringify({ id: current.id }));
+      localStorage.setItem("dp_lastGenre", current.genre || genreName || "");
+    }
+    saveFavorites();
+  };
+
+  audio.onpause = function() {
+    isPlaying = false;
+    if (playBtn) playBtn.innerHTML = '<i class="fas fa-play"></i>';
+    syncModal();
   };
 }
 
@@ -446,6 +475,13 @@ if (shuffleBtn) {
   };
 }
 
+if (repeatBtn) {
+  repeatBtn.onclick = function() {
+    isRepeating = !isRepeating;
+    saveRepeatState();
+  };
+}
+
 if (footerFavBtn) {
   footerFavBtn.onclick = function() {
     console.log("Favorites button clicked, current track:", current);
@@ -469,6 +505,18 @@ if (audio) {
     if (progressFill) progressFill.style.width = isNaN(progress) ? "0%" : (progress + "%");
     if (currentTimeLabel) currentTimeLabel.textContent = formatTime(audio.currentTime);
     if (totalTimeLabel) totalTimeLabel.textContent = isNaN(audio.duration) ? "0:00" : formatTime(audio.duration);
+    if (nowPlayingModal.style.display === 'flex') {
+      largeCurrentTime.textContent = formatTime(audio.currentTime);
+      largeProgressFill.style.width = isNaN(progress) ? "0%" : (progress + "%");
+    }
+  };
+}
+
+if (audio) {
+  audio.onloadedmetadata = function() {
+    if (current) current.duration = audio.duration;
+    totalTimeLabel.textContent = formatTime(audio.duration);
+    largeTotalTime.textContent = formatTime(audio.duration);
   };
 }
 
@@ -508,9 +556,50 @@ if (progressBar) {
   progressBar.addEventListener("touchend", function() {});
 }
 
+if (largeProgressBar) {
+  function setLargeProgress(e) {
+    var rect = largeProgressBar.getBoundingClientRect();
+    var x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
+    var width = rect.width;
+    var percentage = Math.max(0, Math.min(1, x / width));
+    if (!isNaN(audio.duration)) {
+      audio.currentTime = percentage * audio.duration;
+    }
+  }
+
+  largeProgressBar.addEventListener("click", setLargeProgress);
+
+  var isLargeDragging = false;
+  largeProgressBar.addEventListener("mousedown", function(e) {
+    isLargeDragging = true;
+    setLargeProgress(e);
+  });
+  document.addEventListener("mousemove", function(e) {
+    if (isLargeDragging) setLargeProgress(e);
+  });
+  document.addEventListener("mouseup", function() {
+    isLargeDragging = false;
+  });
+
+  largeProgressBar.addEventListener("touchstart", function(e) {
+    e.preventDefault();
+    setLargeProgress(e);
+  });
+  largeProgressBar.addEventListener("touchmove", function(e) {
+    e.preventDefault();
+    setLargeProgress(e);
+  });
+  largeProgressBar.addEventListener("touchend", function() {});
+}
+
 if (audio) {
   audio.onended = function() {
-    if (document.getElementById("nextBtn")) document.getElementById("nextBtn").click();
+    if (isRepeating) {
+      audio.currentTime = 0;
+      audio.play();
+    } else {
+      if (document.getElementById("nextBtn")) document.getElementById("nextBtn").click();
+    }
   };
 }
 
@@ -585,16 +674,6 @@ inicioNavs.forEach(function(n){
   };
 });
 
-if (audio) {
-  audio.onplay = function() {
-    if (current) {
-      localStorage.setItem("dp_lastTrack", JSON.stringify({ id: current.id }));
-      localStorage.setItem("dp_lastGenre", current.genre || genreName || "");
-    }
-    saveFavorites();
-  };
-}
-
 if (hamburger) {
   hamburger.onclick = function() {
     var navHtml = '\
@@ -610,7 +689,7 @@ if (hamburger) {
 
     var genreNames = Object.keys(genresTracks).sort();
     for (var genre of genreNames) {
-      navHtml += '<li><a href="?genre=' + genre + '" class="hover:text-white">🎵 ' + escapeHtml(genre) + '</a></li>';
+      navHtml += '<li><a href="?genre=' + encodeURIComponent(genre) + '" class="hover:text-white">🎵 ' + escapeHtml(genre) + '</a></li>';
     }
 
     navHtml += '\
@@ -644,9 +723,46 @@ if (closeSidebarBtn) {
   };
 }
 
+function openModal() {
+  if (current) {
+    largeCover.src = current.cover || "https://raw.githubusercontent.com/lzrdrz10/musiclive/main/portadas/youtube.jpeg";
+    largeTitle.textContent = current.title || "Sin título";
+    largeArtist.textContent = current.artist || "Desconocido";
+  }
+  largeCurrentTime.textContent = currentTimeLabel.textContent;
+  largeTotalTime.textContent = totalTimeLabel.textContent;
+  largeProgressFill.style.width = progressFill.style.width;
+  syncModal();
+  nowPlayingModal.style.display = 'flex';
+}
+
+function syncModal() {
+  if (nowPlayingModal.style.display !== 'flex') return;
+  if (shuffleLarge) shuffleLarge.classList.toggle('active', isShuffling);
+  if (playPauseLarge) playPauseLarge.innerHTML = isPlaying ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
+  if (repeatBtn) repeatBtn.classList.toggle('active', isRepeating);
+  var isFav = current ? favorites.some(f => f.id === current.id && f.genre === current.genre) : false;
+  if (favLarge) {
+    favLarge.textContent = isFav ? "★" : "☆";
+    favLarge.classList.toggle('active', isFav);
+  }
+}
+
+if (coverArea) coverArea.onclick = openModal;
+if (infoArea) infoArea.onclick = openModal;
+if (closeModal) closeModal.onclick = () => { nowPlayingModal.style.display = 'none'; };
+
+if (shuffleLarge) shuffleLarge.onclick = () => { shuffleBtn.click(); };
+if (prevLarge) prevLarge.onclick = () => { document.getElementById("prevBtn").click(); };
+if (playPauseLarge) playPauseLarge.onclick = () => { playBtn.click(); };
+if (nextLarge) nextLarge.onclick = () => { document.getElementById("nextBtn").click(); };
+if (repeatBtn) repeatBtn.onclick = () => { isRepeating = !isRepeating; saveRepeatState(); };
+if (favLarge) favLarge.onclick = () => { footerFavBtn.click(); };
+
 document.addEventListener("keydown", function(e){
-  if (e.key === "Escape" && mobileSidebarContainer) {
-    mobileSidebarContainer.innerHTML = "";
+  if (e.key === "Escape") {
+    if (mobileSidebarContainer) mobileSidebarContainer.innerHTML = "";
+    if (nowPlayingModal.style.display === 'flex') nowPlayingModal.style.display = 'none';
   }
 });
 
@@ -663,6 +779,7 @@ function escapeHtml(unsafe) {
 (async function init(){
   loadFavorites();
   loadShuffleState();
+  loadRepeatState();
   await loadAllGenres();
 
   var lastGenre = localStorage.getItem("dp_lastGenre");
