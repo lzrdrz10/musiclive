@@ -215,6 +215,7 @@ async function loadAllGenres() {
     console.log("Artistas encontrados:", Object.keys(artists));
 
     renderSidebar();
+    renderMobileSidebar();
   } catch (e) {
     console.error("Error cargando géneros:", e);
   }
@@ -222,26 +223,36 @@ async function loadAllGenres() {
 
 function renderSidebar() {
   if (!sidebarNav) return;
-  var navHtml = '\
-    <li class="flex items-center gap-3 hover:text-white cursor-pointer" data-view="welcome">🏠 Inicio</li>';
-  
+  var navHtml = `
+    <li class="flex items-center gap-3 hover:text-white cursor-pointer" data-view="welcome">🏠 Inicio</li>
+    <li class="pt-4 border-t border-gray-800 text-xs opacity-80">Géneros</li>`;
+
   var genreNames = Object.keys(genresTracks).sort();
   for (var genre of genreNames) {
-    navHtml += '<li><a href="?genre=' + encodeURIComponent(genre) + '" class="hover:text-white">🎵 ' + escapeHtml(genre) + '</a></li>';
+    navHtml += `<li class="flex items-center gap-3 hover:text-white cursor-pointer genre-link" data-genre="${escapeHtml(genre)}">🎵 ${escapeHtml(genre)}</li>`;
   }
 
-  navHtml += '\
-    <li class="pt-4 border-t border-gray-800 text-xs opacity-80">Listas</li>\
-    <li class="flex items-center gap-3 hover:text-white cursor-pointer" id="favNav">\
-      ⭐ Favoritos <span id="favCount" class="ml-2 text-xs opacity-70">0</span>\
-    </li>';
+  navHtml += `
+    <li class="pt-4 border-t border-gray-800 text-xs opacity-80">Listas</li>
+    <li class="flex items-center gap-3 hover:text-white cursor-pointer" id="favNav">
+      ⭐ Favoritos <span id="favCount" class="ml-2 text-xs opacity-70">${favorites.length}</span>
+    </li><br><br><br>`;
 
   sidebarNav.innerHTML = navHtml;
+
+  document.querySelectorAll('.genre-link').forEach(link => {
+    link.onclick = function() {
+      const genre = this.dataset.genre;
+      loadGenre(genre);
+      history.pushState({genre: genre}, "", "?genre=" + encodeURIComponent(genre));
+    };
+  });
 
   var newFavNav = document.getElementById("favNav");
   if (newFavNav) {
     newFavNav.onclick = function() {
       showFavorites();
+      history.pushState({genre: null, view: 'favoritos'}, "", window.location.pathname);
     };
   }
 
@@ -249,8 +260,65 @@ function renderSidebar() {
   inicioNavs.forEach(function(n){ 
     n.onclick = function(){ 
       showWelcome();
+      history.pushState({genre: null, view: 'welcome'}, "", window.location.pathname);
     };
   });
+}
+
+function renderMobileSidebar() {
+  if (!hamburger) return;
+  hamburger.onclick = function() {
+    var navHtml = `
+      <div id="mobileOverlay" class="fixed inset-0 flex z-50">
+        <div class="w-72 bg-gradient-to-b from-gray-900 to-black p-5 h-full overflow-auto">
+          <div class="flex items-center justify-between mb-4">
+            <div class="text-2xl font-black">DarkPlayer</div>
+            <button id="mobileClose" class="p-2 rounded hover:bg-white/5">✕</button>
+          </div>
+          <nav>
+            <ul class="space-y-3 text-sm">
+              <li class="flex items-center gap-3 hover:text-white cursor-pointer" id="mInicio">🏠 Inicio</li>
+              <li class="pt-4 border-t border-gray-800 text-xs opacity-80">Géneros</li>`;
+
+    var genreNames = Object.keys(genresTracks).sort();
+    for (var genre of genreNames) {
+      navHtml += `<li class="flex items-center gap-3 hover:text-white cursor-pointer m-genre-link" data-genre="${escapeHtml(genre)}">🎵 ${escapeHtml(genre)}</li>`;
+    }
+
+    navHtml += `
+              <li class="pt-4 border-t border-gray-800 text-xs opacity-80">Listas</li>
+              <li class="flex items-center gap-3 hover:text-white cursor-pointer" id="mFav">⭐ Favoritos <span id="mFavCount" class="ml-2 text-xs opacity-70">${favorites.length}</span></li>
+            <br><br><br><br><br></ul>
+          </nav>
+        </div>
+        <div id="mobileOverlayBg" class="flex-1 overlay"></div>
+      </div>`;
+
+    mobileSidebarContainer.innerHTML = navHtml;
+
+    document.getElementById("mobileClose").onclick = function(){ mobileSidebarContainer.innerHTML = ""; };
+    document.getElementById("mobileOverlayBg").onclick = function(){ mobileSidebarContainer.innerHTML = ""; };
+
+    document.querySelectorAll('.m-genre-link').forEach(link => {
+      link.onclick = function() {
+        const genre = this.dataset.genre;
+        loadGenre(genre);
+        history.pushState({genre: genre}, "", "?genre=" + encodeURIComponent(genre));
+        mobileSidebarContainer.innerHTML = "";
+      };
+    });
+
+    document.getElementById("mInicio").onclick = function(){
+      mobileSidebarContainer.innerHTML = "";
+      showWelcome();
+      history.pushState({genre: null, view: 'welcome'}, "", window.location.pathname);
+    };
+    document.getElementById("mFav").onclick = function(){
+      mobileSidebarContainer.innerHTML = "";
+      showFavorites();
+      history.pushState({genre: null, view: 'favoritos'}, "", window.location.pathname);
+    };
+  };
 }
 
 function showWelcome() {
@@ -259,6 +327,13 @@ function showWelcome() {
   if (genreSection) genreSection.classList.add("hidden");
   displayedTracks = allTracks.slice();
   renderTracks(displayedTracks, trackListEl);
+
+  if (!current || !isPlaying) {
+    var lastTrack = JSON.parse(localStorage.getItem("dp_lastTrack") || "null");
+    var saved = lastTrack ? allTracks.find(function(x){ return x.id === lastTrack.id; }) : null;
+    if (saved) loadTrack(saved);
+    else if (allTracks.length > 0) loadTrack(allTracks[0]);
+  }
 
   if (searchInput) searchInput.value = "";
   if (searchInputMobile) searchInputMobile.value = "";
@@ -287,9 +362,12 @@ function loadGenre(name) {
   displayedTracks = tracks.slice();
   renderTracks(displayedTracks, genreTrackListEl);
 
-  var lastTrack = JSON.parse(localStorage.getItem("dp_lastTrack") || "null");
-  var saved = lastTrack ? tracks.find(function(x){ return x.id === lastTrack.id; }) : null;
-  loadTrack(saved || tracks[0]);
+  if (!current || !isPlaying) {
+    var lastTrack = JSON.parse(localStorage.getItem("dp_lastTrack") || "null");
+    var saved = lastTrack ? tracks.find(function(x){ return x.id === lastTrack.id; }) : null;
+    if (saved) loadTrack(saved);
+    else if (tracks.length > 0) loadTrack(tracks[0]);
+  }
 
   localStorage.setItem("dp_lastGenre", name);
   currentView = 'genre';
@@ -308,18 +386,18 @@ function renderTracks(list, targetEl) {
     var activeCls = (current && current.id === t.id && current.genre === t.genre) ? "active-track" : "";
     tr.className = "cursor-pointer hover:bg-gray-700/30 transition-colors duration-150 " + activeCls;
 
-    tr.innerHTML = '\
-      <td class="pl-4 py-3 align-middle">' + t.id + '</td>\
-      <td>\
-        <div class="track-info">\
-          <img src="' + t.cover + '" class="track-cover" onerror="this.src=\'https://raw.githubusercontent.com/lzrdrz10/musiclive/main/portadas/youtube.jpeg\'" />\
-          <div class="track-details">\
-            <div class="track-title" title="' + escapeHtml(t.title) + '">' + escapeHtml(t.title) + '</div>\
-            <div class="track-artist">' + escapeHtml(t.artist) + ' - ' + escapeHtml(t.album) + '</div>\
-          </div>\
-        </div>\
-      </td>\
-      <td class="text-right pr-4 align-middle">' + formatTime(t.duration) + '</td>';
+    tr.innerHTML = `
+      <td class="pl-4 py-3 align-middle">${t.id}</td>
+      <td>
+        <div class="track-info">
+          <img src="${t.cover}" class="track-cover" onerror="this.src='https://raw.githubusercontent.com/lzrdrz10/musiclive/main/portadas/youtube.jpeg'" />
+          <div class="track-details">
+            <div class="track-title" title="${escapeHtml(t.title)}">${escapeHtml(t.title)}</div>
+            <div class="track-artist">${escapeHtml(t.artist)} - ${escapeHtml(t.album)}</div>
+          </div>
+        </div>
+      </td>
+      <td class="text-right pr-4 align-middle">${formatTime(t.duration)}</td>`;
 
     tr.onclick = function(e) {
       playTrack(t);
@@ -363,10 +441,17 @@ function showFavorites() {
   displayedTracks = favorites.slice();
   renderTracks(displayedTracks, trackListEl);
 
+  if (!current || !isPlaying) {
+    var lastTrack = JSON.parse(localStorage.getItem("dp_lastTrack") || "null");
+    var saved = lastTrack ? favorites.find(function(x){ return x.id === lastTrack.id; }) : null;
+    if (saved) loadTrack(saved);
+    else if (favorites.length > 0) loadTrack(favorites[0]);
+  }
+
   if (searchInput) searchInput.value = "";
   if (searchInputMobile) searchInputMobile.value = "";
   if (searchInputGenre) searchInputGenre.value = "";
-  if ( hairstyleInputMobileGenre) searchInputMobileGenre.value = "";
+  if (searchInputMobileGenre) searchInputMobileGenre.value = "";
 }
 
 function loadTrack(track) {
@@ -390,6 +475,9 @@ function loadTrack(track) {
     renderTracks(displayedTracks, genreTrackListEl);
   }
   updateFavUI();
+  if (nowPlayingModal.style.display === 'flex') {
+    openModal();
+  }
 }
 
 function playTrack(track) {
@@ -397,6 +485,9 @@ function playTrack(track) {
   if (!current || current.id !== track.id || current.genre !== track.genre) loadTrack(track);
   audio.play().then(function(){
     isPlaying = true;
+    if (nowPlayingModal.style.display === 'flex') {
+      openModal();
+    }
   }).catch(function(e){
     console.error("Error playing audio:", e);
     isPlaying = true;
@@ -640,6 +731,13 @@ function applySearch(term) {
   if (welcomeSection) welcomeSection.classList.remove("hidden");
   if (genreSection) genreSection.classList.add("hidden");
   renderTracks(displayedTracks, trackListEl);
+
+  if (!current || !isPlaying) {
+    var lastTrack = JSON.parse(localStorage.getItem("dp_lastTrack") || "null");
+    var saved = lastTrack ? displayedTracks.find(function(x){ return x.id === lastTrack.id; }) : null;
+    if (saved) loadTrack(saved);
+    else if (displayedTracks.length > 0) loadTrack(displayedTracks[0]);
+  }
 }
 
 function setupSearchInput(input) {
@@ -673,49 +771,6 @@ inicioNavs.forEach(function(n){
     showWelcome();
   };
 });
-
-if (hamburger) {
-  hamburger.onclick = function() {
-    var navHtml = '\
-      <div id="mobileOverlay" class="fixed inset-0 flex z-50">\
-        <div class="w-72 bg-gradient-to-b from-gray-900 to-black p-5 h-full overflow-auto">\
-          <div class="flex items-center justify-between mb-4">\
-            <div class="text-2xl font-black">DarkPlayer</div>\
-            <button id="mobileClose" class="p-2 rounded hover:bg-white/5">✕</button>\
-          </div>\
-          <nav>\
-            <ul class="space-y-3 text-sm">\
-              <li class="flex items-center gap-3 hover:text-white cursor-pointer" id="mInicio">🏠 Inicio</li>';
-
-    var genreNames = Object.keys(genresTracks).sort();
-    for (var genre of genreNames) {
-      navHtml += '<li><a href="?genre=' + encodeURIComponent(genre) + '" class="hover:text-white">🎵 ' + escapeHtml(genre) + '</a></li>';
-    }
-
-    navHtml += '\
-              <li class="pt-4 border-t border-gray-800 text-xs opacity-80">Listas</li>\
-              <li class="flex items-center gap-3 hover:text-white cursor-pointer" id="mFav">⭐ Favoritos <span id="mFavCount" class="ml-2 text-xs opacity-70">' + favorites.length + '</span></li>\
-            </ul>\
-          </nav>\
-        </div>\
-        <div id="mobileOverlayBg" class="flex-1 overlay"></div>\
-      </div>';
-
-    mobileSidebarContainer.innerHTML = navHtml;
-
-    document.getElementById("mobileClose").onclick = function(){ mobileSidebarContainer.innerHTML = ""; };
-    document.getElementById("mobileOverlayBg").onclick = function(){ mobileSidebarContainer.innerHTML = ""; };
-
-    document.getElementById("mInicio").onclick = function(){
-      mobileSidebarContainer.innerHTML = "";
-      showWelcome();
-    };
-    document.getElementById("mFav").onclick = function(){
-      mobileSidebarContainer.innerHTML = "";
-      showFavorites();
-    };
-  };
-}
 
 if (closeSidebarBtn) {
   closeSidebarBtn.onclick = function(){ 
@@ -776,6 +831,20 @@ function escapeHtml(unsafe) {
     .replace(/'/g, "&#039;");
 }
 
+window.onpopstate = function(event) {
+  if (event.state) {
+    if (event.state.genre) {
+      loadGenre(event.state.genre);
+    } else if (event.state.view === 'favoritos') {
+      showFavorites();
+    } else {
+      showWelcome();
+    }
+  } else {
+    showWelcome();
+  }
+};
+
 (async function init(){
   loadFavorites();
   loadShuffleState();
@@ -785,10 +854,9 @@ function escapeHtml(unsafe) {
   var lastGenre = localStorage.getItem("dp_lastGenre");
   if (genreName) {
     loadGenre(genreName);
+    history.replaceState({genre: genreName}, "", "?genre=" + encodeURIComponent(genreName));
   } else {
     showWelcome();
-    if (allTracks.length > 0 && !current) {
-      loadTrack(allTracks[0]);
-    }
+    history.replaceState({genre: null, view: 'welcome'}, "", window.location.pathname);
   }
 })();
